@@ -84,7 +84,8 @@
                 </div>
 
                 <!-- Stats -->
-                <div style="padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                <div style="padding-top: 1rem; border-top: 1px solid var(--border-color); cursor: pointer;"
+                    onclick="openIncidentsModal()">
                     <div style="font-size: 0.875rem; color: var(--text-secondary);">
                         <div style="margin-bottom: 0.25rem;">
                             <strong style="color: var(--text-primary); font-size: 1.25rem;" id="stats-total">0</strong>
@@ -250,6 +251,32 @@
             </form>
         </div>
     </div>
+
+    <!-- Incidents List Modal -->
+    <div id="incidents-modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem 0;">
+        <div class="card"
+            style="width: 100%; max-width: 700px; position: relative; animation: slideUp 0.3s ease-out; margin: auto; max-height: 90vh; display: flex; flex-direction: column;">
+            <button onclick="closeIncidentsModal()"
+                style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; color: var(--text-secondary); z-index: 1;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem;">Incidentes Filtrados</h2>
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    <span id="modal-incidents-count">0</span> incidentes en el área seleccionada
+                </p>
+            </div>
+
+            <div id="incidents-list-container" style="overflow-y: auto; flex: 1;">
+                <!-- Incidents will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('styles')
@@ -365,6 +392,87 @@
                 transform: translateY(0);
                 opacity: 1;
             }
+        }
+
+        .incident-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .incident-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .incident-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .incident-card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .incident-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+        }
+
+        .incident-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .incident-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+
+        .incident-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .incident-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .incident-category-tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: #F3F4F6;
+            color: var(--text-primary);
         }
     </style>
 @endpush
@@ -510,15 +618,15 @@
                 userLocationMarker = L.marker(e.latlng, {
                     icon: L.divIcon({
                         html: `
-                                                        <div style="
-                                                            width: 20px;
-                                                            height: 20px;
-                                                            background-color: #3b82f6;
-                                                            border: 4px solid white;
-                                                            border-radius: 50%;
-                                                            box-shadow: 0 0 0 2px #3b82f6, 0 2px 8px rgba(0,0,0,0.3);
-                                                        "></div>
-                                                    `,
+                                                                        <div style="
+                                                                            width: 20px;
+                                                                            height: 20px;
+                                                                            background-color: #3b82f6;
+                                                                            border: 4px solid white;
+                                                                            border-radius: 50%;
+                                                                            box-shadow: 0 0 0 2px #3b82f6, 0 2px 8px rgba(0,0,0,0.3);
+                                                                        "></div>
+                                                                    `,
                         className: '',
                         iconSize: [20, 20],
                         iconAnchor: [10, 10]
@@ -581,10 +689,10 @@
                 const div = document.createElement('label');
                 div.className = 'category-checkbox';
                 div.innerHTML = `
-                                                <input type="checkbox" value="${category}" checked>
-                                                <span class="category-color" style="background-color: ${config.color};"></span>
-                                                <span class="category-label">${category}</span>
-                                            `;
+                                                                <input type="checkbox" value="${category}" checked>
+                                                                <span class="category-color" style="background-color: ${config.color};"></span>
+                                                                <span class="category-label">${category}</span>
+                                                            `;
 
                 const checkbox = div.querySelector('input');
                 checkbox.addEventListener('change', function () {
@@ -607,21 +715,21 @@
             const config = categoryConfig[category] || categoryConfig['Otro'];
             return L.divIcon({
                 html: `
-                                                <div style="
-                                                    width: 32px;
-                                                    height: 32px;
-                                                    background-color: ${config.color};
-                                                    border: 3px solid white;
-                                                    border-radius: 50%;
-                                                    display: flex;
-                                                    align-items: center;
-                                                    justify-content: center;
-                                                    font-size: 16px;
-                                                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                                                ">
-                                                    ${config.icon}
-                                                </div>
-                                            `,
+                                                                <div style="
+                                                                    width: 32px;
+                                                                    height: 32px;
+                                                                    background-color: ${config.color};
+                                                                    border: 3px solid white;
+                                                                    border-radius: 50%;
+                                                                    display: flex;
+                                                                    align-items: center;
+                                                                    justify-content: center;
+                                                                    font-size: 16px;
+                                                                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                                                                ">
+                                                                    ${config.icon}
+                                                                </div>
+                                                            `,
                 className: '',
                 iconSize: [32, 32],
                 iconAnchor: [16, 16],
@@ -665,12 +773,12 @@
                 });
 
                 marker.bindPopup(`
-                                                <div style="font-family: 'Inter', sans-serif;">
-                                                    <strong style="font-size: 0.875rem; color: #0A0A0A;">${props.category}</strong><br>
-                                                    <p style="margin: 0.5rem 0; font-size: 0.75rem; color: #706F6C;">${props.description || 'Sin descripción'}</p>
-                                                    <small style="font-size: 0.625rem; color: #9CA3AF;">${new Date(props.created_at).toLocaleString('es-CO')}</small>
-                                                </div>
-                                            `);
+                                                                <div style="font-family: 'Inter', sans-serif;">
+                                                                    <strong style="font-size: 0.875rem; color: #0A0A0A;">${props.category}</strong><br>
+                                                                    <p style="margin: 0.5rem 0; font-size: 0.75rem; color: #706F6C;">${props.description || 'Sin descripción'}</p>
+                                                                    <small style="font-size: 0.625rem; color: #9CA3AF;">${new Date(props.created_at).toLocaleString('es-CO')}</small>
+                                                                </div>
+                                                            `);
 
                 markersLayer.addLayer(marker);
             });
@@ -776,5 +884,146 @@
                 closeReportModal();
             }
         });
+
+        document.getElementById('incidents-modal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeIncidentsModal();
+            }
+        });
+
+        // Incidents Modal Functions
+        function openIncidentsModal() {
+            const filteredIncidents = getFilteredIncidents();
+
+            if (filteredIncidents.length === 0) {
+                return; // Don't open if no incidents
+            }
+
+            document.getElementById('modal-incidents-count').textContent = filteredIncidents.length;
+            renderIncidentCards(filteredIncidents);
+            document.getElementById('incidents-modal').style.display = 'flex';
+        }
+
+        function closeIncidentsModal() {
+            document.getElementById('incidents-modal').style.display = 'none';
+        }
+
+        function getFilteredIncidents() {
+            const now = new Date();
+            const hoursAgo = new Date(now - currentFilters.hours * 60 * 60 * 1000);
+
+            return allIncidents.filter(feature => {
+                const incidentDate = new Date(feature.properties.created_at);
+                const category = feature.properties.category;
+                const timeMatch = incidentDate >= hoursAgo;
+                const categoryMatch = currentFilters.categories.includes(category);
+
+                let distanceMatch = true;
+                if (userLocation) {
+                    const coords = feature.geometry.coordinates;
+                    const distance = calculateDistance(
+                        userLocation.lat,
+                        userLocation.lng,
+                        coords[1],
+                        coords[0]
+                    );
+                    distanceMatch = distance <= currentFilters.distanceKm;
+                }
+
+                return timeMatch && categoryMatch && distanceMatch;
+            });
+        }
+
+        function renderIncidentCards(incidents) {
+            const container = document.getElementById('incidents-list-container');
+            container.innerHTML = '';
+
+            incidents.forEach(feature => {
+                const props = feature.properties;
+                const coords = feature.geometry.coordinates;
+                const category = props.category || 'Otro';
+                const config = categoryConfig[category] || categoryConfig['Otro'];
+
+                // Calculate time ago
+                const createdAt = new Date(props.created_at);
+                const timeAgo = getTimeAgo(createdAt);
+
+                // Status badge (you can customize this based on your incident properties)
+                const status = props.status || 'Pendiente';
+                const statusColor = status === 'En progreso' ? '#3b82f6' : status === 'Resuelto' ? '#10b981' : '#6b7280';
+
+                const card = document.createElement('div');
+                card.className = 'incident-card';
+                card.onclick = () => focusIncidentOnMap(coords[1], coords[0]);
+
+                card.innerHTML = `
+                        <div class="incident-card-header">
+                            <div class="incident-card-title">
+                                <div class="incident-icon" style="background-color: ${config.color};">
+                                    ${config.icon}
+                                </div>
+                                <div>
+                                    <h3 style="font-size: 1rem; font-weight: 600; margin: 0; color: var(--text-primary);">
+                                        ${category}
+                                    </h3>
+                                    <div class="incident-category-tag" style="margin-top: 0.25rem;">
+                                        ${category}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="incident-status" style="background-color: ${statusColor}20; color: ${statusColor};">
+                                ${status}
+                            </div>
+                        </div>
+
+                        <p class="incident-description">
+                            ${props.description || 'Sin descripción disponible'}
+                        </p>
+
+                        <div class="incident-meta">
+                            <div class="incident-meta-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <span>${timeAgo}</span>
+                            </div>
+                            <div class="incident-meta-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                <span>${coords[1].toFixed(4)}, ${coords[0].toFixed(4)}</span>
+                            </div>
+                        </div>
+                    `;
+
+                container.appendChild(card);
+            });
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 60) {
+                return `Hace ${diffMins} ${diffMins === 1 ? 'minuto' : 'minutos'}`;
+            } else if (diffHours < 24) {
+                return `Hace ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`;
+            } else {
+                return `Hace ${diffDays} ${diffDays === 1 ? 'día' : 'días'}`;
+            }
+        }
+
+        function focusIncidentOnMap(lat, lng) {
+            closeIncidentsModal();
+            map.setView([lat, lng], 16, {
+                animate: true,
+                duration: 1
+            });
+        }
     </script>
 @endpush
