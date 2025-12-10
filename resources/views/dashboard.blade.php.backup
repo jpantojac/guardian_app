@@ -1,0 +1,478 @@
+@extends('layouts.app')
+
+@section('main-class', '')
+
+@section('content')
+    <div id="map"></div>
+
+    <!-- Floating Report Button -->
+    <div style="position: absolute; bottom: 2rem; right: 1rem; z-index: 999;">
+        @auth
+            <a href="/report" class="map-fab large" title="Reportar Incidente">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </a>
+        @else
+            <button onclick="openLoginModal()" class="map-fab large" title="Iniciar sesión para reportar">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+            </button>
+        @endauth
+    </div>
+
+    <!-- Filter Panel -->
+    <div style="position: absolute; top: 80px; left: 1rem; z-index: 999; max-width: 320px;">
+        <div class="card" style="margin: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3 style="font-size: 1rem; font-weight: 600; margin: 0;">Filtros</h3>
+                <button id="toggle-filters"
+                    style="background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0.25rem;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                        <strong style="color: var(--text-primary); font-size: 1.25rem;" id="stats-total">0</strong>
+                        <span style="margin-left: 0.25rem;">incidentes</span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--text-secondary);">
+                en el período seleccionado
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- Login/Register Modal -->
+    <div id="auth-modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div class="card" style="width: 100%; max-width: 400px; position: relative; animation: slideUp 0.3s ease-out;">
+            <button onclick="closeLoginModal()"
+                style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; color: var(--text-secondary);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div
+                    style="width: 48px; height: 48px; background: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Seguridad Ciudadana</h2>
+                <p style="color: var(--text-secondary);">Accede para reportar incidentes</p>
+            </div>
+
+            <!-- Tabs -->
+            <div style="display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem;">
+                <button onclick="switchAuthTab('login')" id="tab-login"
+                    style="flex: 1; padding: 0.75rem; background: none; border: none; border-bottom: 2px solid var(--primary); color: var(--primary); font-weight: 600; cursor: pointer;">Iniciar
+                    Sesión</button>
+                <button onclick="switchAuthTab('register')" id="tab-register"
+                    style="flex: 1; padding: 0.75rem; background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer;">Registrarse</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="form-login" method="POST" action="{{ route('login') }}">
+                @csrf
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Correo
+                        Electrónico</label>
+                    <input type="email" name="email" required
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 0.875rem;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Contraseña</label>
+                    <input type="password" name="password" required
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 0.875rem;">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Ingresar</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="form-register" method="POST" action="{{ route('register') }}" style="display: none;">
+                @csrf
+                <div style="margin-bottom: 1rem;">
+                    <label
+                        style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Nombre</label>
+                    <input type="text" name="name" required
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 0.875rem;">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Correo
+                        Electrónico</label>
+                    <input type="email" name="email" required
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 0.875rem;">
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <label
+                        style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Contraseña</label>
+                    <input type="password" name="password" required
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 0.875rem;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem;">Confirmar
+                        Contraseña</label>
+                    <input type="password" name="password_confirmation" required
+                        style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 0.875rem;">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Registrarse</button>
+            </form>
+        </div>
+    </div>
+@endsection
+
+@push('styles')
+    <style>
+        /* Time filter button base styles */
+        .time-filter {
+            flex: 1;
+            min-width: 80px;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: white;
+            color: var(--text-primary);
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            opacity: 0.9;
+        }
+
+        .time-filter.active {
+            background: var(--primary) !important;
+            color: white !important;
+            border-color: var(--primary) !important;
+        }
+
+        .category-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .category-checkbox:hover {
+            background: #F5F5F5;
+        }
+
+        .category-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .category-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .category-label {
+            font-size: 0.875rem;
+            flex: 1;
+        }
+
+        #filter-content.collapsed {
+            display: none;
+        }
+
+        #toggle-filters svg {
+            transition: transform 0.2s;
+        }
+
+        #toggle-filters.collapsed svg {
+            transform: rotate(-90deg);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+@endpush
+
+@push('scripts')
+    <script>
+        let map;
+        let markersLayer;
+        let allIncidents = [];
+        let currentFilters = {
+            hours: 1,
+            categories: []
+        };
+
+        // Category colors and icons
+        const categoryConfig = {
+            'Hurto a personas': { color: '#dc2626', icon: '👤' },
+            'Hurto a residencias': { color: '#ea580c', icon: '🏠' },
+            'Hurto a comercio': { color: '#ca8a04', icon: '🏪' },
+            'Violencia intrafamiliar': { color: '#7c3aed', icon: '👨‍👩‍👧' },
+            'Homicidio': { color: '#be123c', icon: '⚠️' },
+            'Extorsión': { color: '#0891b2', icon: '💰' },
+            'Lesiones personales': { color: '#ec4899', icon: '🩹' },
+            'Otro': { color: '#6b7280', icon: '📍' }
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize map centered on Bogotá
+            map = L.map('map', {
+                zoomControl: false // Disable default zoom control to move it
+            }).setView([4.6097, -74.0817], 12);
+
+            // Add zoom control to top right
+            L.control.zoom({
+                position: 'topright'
+            }).addTo(map);
+
+            // Base Layers
+            const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: 'OpenStreetMap'
+            });
+
+            const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: 'CartoDB'
+            });
+
+            const cartoDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: 'CartoDB'
+            });
+
+            // Set default layer
+            cartoLight.addTo(map);
+
+            // Layer Control
+            const baseMaps = {
+                "Claro (CartoDB)": cartoLight,
+                "Oscuro (CartoDB)": cartoDark,
+                "OpenStreetMap": osm
+            };
+
+            L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+
+            // Create a layer group for markers
+            markersLayer = L.layerGroup().addTo(map);
+
+            // Fetch incidents
+            fetch('/api/geojson')
+                .then(response => response.json())
+                .then(data => {
+                    allIncidents = data.features;
+
+                    // Extract unique categories
+                    const categories = [...new Set(allIncidents.map(f => f.properties.category))];
+                    currentFilters.categories = categories; // Initially all selected
+
+                    // Render category filters
+                    renderCategoryFilters(categories);
+
+                    // Apply initial filters
+                    applyFilters();
+                })
+                .catch(error => console.error('Error loading map data:', error));
+
+            // Time filter buttons
+            document.querySelectorAll('.time-filter').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.time-filter').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilters.hours = parseInt(this.dataset.hours);
+                    applyFilters();
+                });
+            });
+
+            // Toggle filters panel
+            document.getElementById('toggle-filters').addEventListener('click', function () {
+                const content = document.getElementById('filter-content');
+                content.classList.toggle('collapsed');
+                this.classList.toggle('collapsed');
+            });
+
+            // Select All Categories
+            document.getElementById('select-all-categories').addEventListener('change', function () {
+                const isChecked = this.checked;
+                const checkboxes = document.querySelectorAll('#category-filters input[type="checkbox"]');
+
+                checkboxes.forEach(cb => cb.checked = isChecked);
+
+                if (isChecked) {
+                    currentFilters.categories = [...new Set(allIncidents.map(f => f.properties.category))];
+                } else {
+                    currentFilters.categories = [];
+                }
+                applyFilters();
+            });
+        });
+
+        function renderCategoryFilters(categories) {
+            const container = document.getElementById('category-filters');
+            container.innerHTML = '';
+
+            categories.forEach(category => {
+                const config = categoryConfig[category] || categoryConfig['Otro'];
+                const div = document.createElement('label');
+                div.className = 'category-checkbox';
+                div.innerHTML = `
+                            <input type="checkbox" value="${category}" checked>
+                            <span class="category-color" style="background-color: ${config.color};"></span>
+                            <span class="category-label">${category}</span>
+                        `;
+
+                const checkbox = div.querySelector('input');
+                checkbox.addEventListener('change', function () {
+                    if (this.checked) {
+                        currentFilters.categories.push(category);
+                    } else {
+                        currentFilters.categories = currentFilters.categories.filter(c => c !== category);
+                    }
+
+                    // Update Select All checkbox state
+                    const allCheckboxes = document.querySelectorAll('#category-filters input[type="checkbox"]');
+                    const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+                    document.getElementById('select-all-categories').checked = allChecked;
+
+                    applyFilters();
+                });
+
+                container.appendChild(div);
+            });
+        }
+
+        function createCustomIcon(category) {
+            const config = categoryConfig[category] || categoryConfig['Otro'];
+
+            return L.divIcon({
+                html: `
+                            <div style="
+                                width: 32px;
+                                height: 32px;
+                                background-color: ${config.color};
+                                border: 3px solid white;
+                                border-radius: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-size: 16px;
+                                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                            ">
+                                ${config.icon}
+                            </div>
+                        `,
+                className: '',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            });
+        }
+
+        function applyFilters() {
+            // Clear existing markers
+            markersLayer.clearLayers();
+
+            // Calculate time threshold
+            const now = new Date();
+            const hoursAgo = new Date(now - currentFilters.hours * 60 * 60 * 1000);
+
+            // Filter incidents
+            const filteredIncidents = allIncidents.filter(feature => {
+                const incidentDate = new Date(feature.properties.created_at);
+                const category = feature.properties.category;
+
+                const timeMatch = incidentDate >= hoursAgo;
+                const categoryMatch = currentFilters.categories.includes(category);
+
+                return timeMatch && categoryMatch;
+            });
+
+            // Add filtered markers to map
+            filteredIncidents.forEach(feature => {
+                const coords = feature.geometry.coordinates;
+                const props = feature.properties;
+                const category = props.category || 'Otro';
+
+                const marker = L.marker([coords[1], coords[0]], {
+                    icon: createCustomIcon(category)
+                });
+
+                marker.bindPopup(`
+                            <div style="font-family: 'Inter', sans-serif;">
+                                <strong style="font-size: 0.875rem; color: #0A0A0A;">${props.category}</strong><br>
+                                <p style="margin: 0.5rem 0; font-size: 0.75rem; color: #706F6C;">${props.description || 'Sin descripción'}</p>
+                                <small style="font-size: 0.625rem; color: #9CA3AF;">${new Date(props.created_at).toLocaleString('es-CO')}</small>
+                            </div>
+                        `);
+
+                markersLayer.addLayer(marker);
+            });
+
+            // Update stats
+            document.getElementById('stats-total').innerText = filteredIncidents.length;
+        }
+
+        // Modal Functions
+        function openLoginModal() {
+            document.getElementById('auth-modal').style.display = 'flex';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('auth-modal').style.display = 'none';
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('form-login');
+            const registerForm = document.getElementById('form-register');
+            const loginTab = document.getElementById('tab-login');
+            const registerTab = document.getElementById('tab-register');
+
+            if (tab === 'login') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+                loginTab.style.borderBottomColor = 'var(--primary)';
+                loginTab.style.color = 'var(--primary)';
+                registerTab.style.borderBottomColor = 'transparent';
+                registerTab.style.color = 'var(--text-secondary)';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+                registerTab.style.borderBottomColor = 'var(--primary)';
+                registerTab.style.color = 'var(--primary)';
+                loginTab.style.borderBottomColor = 'transparent';
+                loginTab.style.color = 'var(--text-secondary)';
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('auth-modal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeLoginModal();
+            }
+        });
+    </script>
+@endpush
