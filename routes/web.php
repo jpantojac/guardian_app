@@ -5,7 +5,10 @@ use App\Http\Controllers\AuthWebController;
 use App\Http\Controllers\IncidentWebController;
 
 Route::get('/', function () {
-    return view('dashboard');
+    $num1 = rand(1, 10);
+    $num2 = rand(1, 10);
+    session(['captcha_result' => $num1 + $num2]);
+    return view('dashboard', compact('num1', 'num2'));
 })->name('home');
 
 // Auth routes
@@ -19,4 +22,7 @@ Route::post('/register', [AuthWebController::class, 'register']);
 Route::middleware('auth')->group(function () {
     Route::get('/report', [IncidentWebController::class, 'create'])->name('report.create');
     Route::post('/report', [IncidentWebController::class, 'store'])->name('report.store');
+
+    // Profile routes
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
 });

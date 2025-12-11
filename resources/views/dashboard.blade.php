@@ -204,11 +204,23 @@
                 <ul id="report-errors-list" style="margin: 0; padding-left: 1.5rem; font-size: 0.875rem;"></ul>
             </div>
 
-            <form id="report-form" method="POST" action="{{ route('report.store') }}">
+            <!-- Warning Message -->
+            <div style="background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 1.5rem; display: flex; gap: 0.75rem;">
+                <span style="font-size: 1.25rem;">⚠️</span>
+                <div>
+                    <strong style="display: block; font-size: 0.875rem;">Importante</strong>
+                    <p style="font-size: 0.8125rem; margin: 0; line-height: 1.4;">
+                        El reporte voluntario de incidente debe ser real ya que es información vital para la comunidad. Por favor, reporta con responsabilidad.
+                    </p>
+                </div>
+            </div>
+
+            <form id="report-form" method="POST" action="{{ route('report.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div style="margin-bottom: 1.5rem;">
                     <label for="report-category">Categoría</label>
-                    <select id="report-category" name="category_id" required>
+                    <select id="report-category" name="category_id" required
+                        style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.375rem;">
                         <option value="">Selecciona una categoría</option>
                         @php
                             $categories = App\Models\Category::all();
@@ -221,19 +233,71 @@
 
                 <div style="margin-bottom: 1.5rem;">
                     <label for="report-description">Descripción</label>
-                    <textarea id="report-description" name="description" rows="4"
-                        placeholder="Describe el incidente..."></textarea>
+                    <textarea id="report-description" name="description" rows="3" placeholder="Describe el incidente..."
+                        style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.375rem;"></textarea>
                 </div>
 
                 <div style="margin-bottom: 1.5rem;">
-                    <label>Ubicación</label>
+                    <label for="location-description">Ubicación (Descripción)</label>
+                    <input type="text" id="location-description" name="location_description"
+                        placeholder="Ej: Cerca de Transmilenio Calle 72"
+                        style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.375rem;">
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label>Ubicación (Mapa)</label>
                     <div id="map-picker"
-                        style="height: 350px; width: 100%; border: 1px solid var(--border-color); border-radius: 0.375rem; overflow: hidden;">
+                        style="height: 250px; width: 100%; border: 1px solid var(--border-color); border-radius: 0.375rem; overflow: hidden;">
                     </div>
                     <input type="hidden" id="report-latitude" name="latitude" required>
                     <input type="hidden" id="report-longitude" name="longitude" required>
                     <small style="color: var(--text-secondary); font-size: 0.75rem; display: block; margin-top: 0.5rem;">Haz
                         clic en el mapa o arrastra el marcador para ajustar la ubicación.</small>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label>Fotos de Evidencia</label>
+                    <div
+                        style="border: 1px dashed var(--border-color); padding: 1rem; border-radius: 0.375rem; text-align: center;">
+                        <input type="file" id="evidence-photos" name="evidence_photos[]" multiple
+                            accept="image/*" style="display: none;" onchange="handlePhotoSelect(this)">
+                        <label for="evidence-photos" style="cursor: pointer; color: var(--primary); font-weight: 500;">
+                            Seleccionar imágenes
+                        </label>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">Máximo 5 fotos
+                            (JPG, PNG)</p>
+                    </div>
+                    <div id="photo-preview-grid"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 0.5rem; margin-top: 1rem;">
+                    </div>
+                    <p id="photo-count"
+                        style="font-size: 0.75rem; color: var(--text-primary); margin-top: 0.5rem; text-align: right;">0/5
+                        fotos</p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label>Privacidad</label>
+                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="radio" name="privacy_level" value="ANONYMOUS" checked>
+                            <span>🔒 Anónimo</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="radio" name="privacy_level" value="IDENTIFIED">
+                            <span>👤 Identificado ({{ auth()->user()->name ?? 'Yo' }})</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- CAPTCHA -->
+                <div style="margin-bottom: 1.5rem; background: #f9fafb; padding: 1rem; border-radius: 0.375rem; border: 1px solid var(--border-color);">
+                    <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Verificación de Seguridad</label>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span style="font-size: 1.125rem; font-family: monospace; letter-spacing: 2px;">¿Cuánto es {{ $num1 }} + {{ $num2 }}?</span>
+                        <input type="number" name="captcha" required placeholder="?" 
+                            style="width: 80px; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.375rem; text-align: center;">
+                    </div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">Resuelve la operación para demostrar que eres humano.</p>
                 </div>
 
                 <div style="margin-bottom: 1.5rem; font-size: 0.875rem;">
@@ -276,6 +340,19 @@
                 <!-- Incidents will be loaded dynamically -->
             </div>
         </div>
+    </div>
+    <!-- Image Lightbox Modal -->
+    <div id="image-lightbox"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; cursor: zoom-out;">
+        <img id="lightbox-image" src=""
+            style="max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); object-fit: contain;">
+        <button onclick="closeImageLightbox()"
+            style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
     </div>
 @endsection
 
@@ -618,15 +695,15 @@
                 userLocationMarker = L.marker(e.latlng, {
                     icon: L.divIcon({
                         html: `
-                                                                        <div style="
-                                                                            width: 20px;
-                                                                            height: 20px;
-                                                                            background-color: #3b82f6;
-                                                                            border: 4px solid white;
-                                                                            border-radius: 50%;
-                                                                            box-shadow: 0 0 0 2px #3b82f6, 0 2px 8px rgba(0,0,0,0.3);
-                                                                        "></div>
-                                                                    `,
+                                                                                            <div style="
+                                                                                                width: 20px;
+                                                                                                height: 20px;
+                                                                                                background-color: #3b82f6;
+                                                                                                border: 4px solid white;
+                                                                                                border-radius: 50%;
+                                                                                                box-shadow: 0 0 0 2px #3b82f6, 0 2px 8px rgba(0,0,0,0.3);
+                                                                                            "></div>
+                                                                                        `,
                         className: '',
                         iconSize: [20, 20],
                         iconAnchor: [10, 10]
@@ -689,10 +766,10 @@
                 const div = document.createElement('label');
                 div.className = 'category-checkbox';
                 div.innerHTML = `
-                                                                <input type="checkbox" value="${category}" checked>
-                                                                <span class="category-color" style="background-color: ${config.color};"></span>
-                                                                <span class="category-label">${category}</span>
-                                                            `;
+                                                                                    <input type="checkbox" value="${category}" checked>
+                                                                                    <span class="category-color" style="background-color: ${config.color};"></span>
+                                                                                    <span class="category-label">${category}</span>
+                                                                                `;
 
                 const checkbox = div.querySelector('input');
                 checkbox.addEventListener('change', function () {
@@ -715,26 +792,90 @@
             const config = categoryConfig[category] || categoryConfig['Otro'];
             return L.divIcon({
                 html: `
-                                                                <div style="
-                                                                    width: 32px;
-                                                                    height: 32px;
-                                                                    background-color: ${config.color};
-                                                                    border: 3px solid white;
-                                                                    border-radius: 50%;
-                                                                    display: flex;
-                                                                    align-items: center;
-                                                                    justify-content: center;
-                                                                    font-size: 16px;
-                                                                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                                                                ">
-                                                                    ${config.icon}
-                                                                </div>
-                                                            `,
+                                                                                    <div style="
+                                                                                        width: 32px;
+                                                                                        height: 32px;
+                                                                                        background-color: ${config.color};
+                                                                                        border: 3px solid white;
+                                                                                        border-radius: 50%;
+                                                                                        display: flex;
+                                                                                        align-items: center;
+                                                                                        justify-content: center;
+                                                                                        font-size: 16px;
+                                                                                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                                                                                    ">
+                                                                                        ${config.icon}
+                                                                                    </div>
+                                                                                `,
                 className: '',
                 iconSize: [32, 32],
                 iconAnchor: [16, 16],
                 popupAnchor: [0, -16]
             });
+        }
+
+        const statusConfig = {
+            'reported': { label: 'Reportado', color: '#6b7280', bg: '#f3f4f6' },
+            'validated': { label: 'Validado', color: '#059669', bg: '#d1fae5' },
+            'rejected': { label: 'Rechazado', color: '#dc2626', bg: '#fee2e2' },
+            'in_progress': { label: 'En Progreso', color: '#2563eb', bg: '#dbeafe' },
+            'resolved': { label: 'Resuelto', color: '#059669', bg: '#d1fae5' }
+        };
+
+        function getIncidentPopupHtml(props) {
+            const category = props.category || 'Otro';
+            const config = categoryConfig[category] || categoryConfig['Otro'];
+            const status = props.status || 'reported';
+            const statusInfo = statusConfig[status] || statusConfig['reported'];
+
+            // Time ago
+            const timeAgo = getTimeAgo(new Date(props.created_at));
+
+            // Photos (limit to 3 for popup)
+            let photosHtml = '';
+            if (props.photos && props.photos.length > 0) {
+                photosHtml = `
+                        <div style="display: flex; gap: 4px; margin-top: 8px; overflow: hidden;">
+                            ${props.photos.slice(0, 3).map(url => `
+                                <div style="width: 40px; height: 40px; border-radius: 4px; overflow: hidden; cursor: pointer;" onclick="openImageLightbox('${url}')">
+                                    <img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">
+                                </div>
+                            `).join('')}
+                            ${props.photos.length > 3 ? `<div style="width: 40px; height: 40px; background: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6b7280;">+${props.photos.length - 3}</div>` : ''}
+                        </div>
+                    `;
+            }
+
+            return `
+                    <div style="font-family: 'Inter', sans-serif; width: 260px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 24px; height: 24px; border-radius: 50%; background: ${config.color}; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                    ${config.icon}
+                                </div>
+                                <strong style="font-size: 14px; color: #111827;">${category}</strong>
+                            </div>
+                        <!-- Status hidden as requested -->
+                        </div>
+
+                        ${props.location_description ? `
+                            <div style="font-size: 11px; color: #4b5563; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                                <span>📍</span> ${props.location_description}
+                            </div>
+                        ` : ''}
+
+                        <p style="margin: 0 0 8px 0; font-size: 12px; color: #374151; line-height: 1.4;">
+                            ${props.description || 'Sin descripción'}
+                        </p>
+
+                        ${photosHtml}
+
+                        <div style="margin-top: 8px; font-size: 10px; color: #9ca3af; display: flex; justify-content: space-between;">
+                            <span>${timeAgo}</span>
+                            <span>${props.privacy_level === 'IDENTIFIED' ? '👤 Usuario' : '🔒 Anónimo'}</span>
+                        </div>
+                    </div>
+                `;
         }
 
         function applyFilters() {
@@ -772,13 +913,7 @@
                     icon: createCustomIcon(category)
                 });
 
-                marker.bindPopup(`
-                                                                <div style="font-family: 'Inter', sans-serif;">
-                                                                    <strong style="font-size: 0.875rem; color: #0A0A0A;">${props.category}</strong><br>
-                                                                    <p style="margin: 0.5rem 0; font-size: 0.75rem; color: #706F6C;">${props.description || 'Sin descripción'}</p>
-                                                                    <small style="font-size: 0.625rem; color: #9CA3AF;">${new Date(props.created_at).toLocaleString('es-CO')}</small>
-                                                                </div>
-                                                            `);
+                marker.bindPopup(getIncidentPopupHtml(props));
 
                 markersLayer.addLayer(marker);
             });
@@ -948,58 +1083,153 @@
                 const createdAt = new Date(props.created_at);
                 const timeAgo = getTimeAgo(createdAt);
 
-                // Status badge (you can customize this based on your incident properties)
-                const status = props.status || 'Pendiente';
-                const statusColor = status === 'En progreso' ? '#3b82f6' : status === 'Resuelto' ? '#10b981' : '#6b7280';
+                // Status badge
+                const status = props.status || 'reported';
+                const statusInfo = statusConfig[status] || statusConfig['reported'];
+
+                // Privacy / Reporter Info
+                const reporterName = props.privacy_level === 'IDENTIFIED' ? (props.reporter_name || 'Usuario') : 'Anónimo';
+                const privacyIcon = props.privacy_level === 'IDENTIFIED' ? '👤' : '🔒';
+
+                // Location Description
+                const locationDesc = props.location_description ? `
+                                    <div style="font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+                                        <span>📍</span> ${props.location_description}
+                                    </div>` : '';
+
+                // Localidad
+                const localidadBadge = props.localidad ? `
+                                    <span style="background: #EEF2FF; color: #4F46E5; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem;">
+                                        ${props.localidad}
+                                    </span>` : '';
+
+                // Photos Carousel / Preview
+                let photosHtml = '';
+                if (props.photos && props.photos.length > 0) {
+                    photosHtml = `
+                                        <div style="margin-bottom: 0.75rem; overflow-x: auto; display: flex; gap: 0.5rem; padding-bottom: 0.5rem;">
+                                        ${props.photos.map(url => `
+                                            <img src="${url}" 
+                                                onclick="event.stopPropagation(); openImageLightbox('${url}')"
+                                                style="height: 60px; width: 60px; object-fit: cover; border-radius: 0.375rem; border: 1px solid var(--border-color); flex-shrink: 0; cursor: zoom-in; transition: transform 0.2s;"
+                                                onmouseover="this.style.transform='scale(1.1)'"
+                                                onmouseout="this.style.transform='scale(1)'"
+                                            >
+                                        `).join('')}
+                                    </div>
+                                `;
+                }
 
                 const card = document.createElement('div');
                 card.className = 'incident-card';
                 card.onclick = () => focusIncidentOnMap(coords[1], coords[0]);
 
                 card.innerHTML = `
-                        <div class="incident-card-header">
-                            <div class="incident-card-title">
-                                <div class="incident-icon" style="background-color: ${config.color};">
-                                    ${config.icon}
-                                </div>
-                                <div>
-                                    <h3 style="font-size: 1rem; font-weight: 600; margin: 0; color: var(--text-primary);">
-                                        ${category}
-                                    </h3>
-                                    <div class="incident-category-tag" style="margin-top: 0.25rem;">
-                                        ${category}
+                                    <div class="incident-card-header">
+                                        <div class="incident-card-title">
+                                            <div class="incident-icon" style="background-color: ${config.color};">
+                                                ${config.icon}
+                                            </div>
+                                            <div>
+                                                <h3 style="font-size: 1rem; font-weight: 600; margin: 0; color: var(--text-primary);">
+                                                    ${category}
+                                                </h3>
+                                                <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.25rem;">
+                                                    <span class="incident-category-tag">${category}</span>
+                                                    ${localidadBadge}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Status hidden as requested -->
                                     </div>
-                                </div>
-                            </div>
-                            <div class="incident-status" style="background-color: ${statusColor}20; color: ${statusColor};">
-                                ${status}
-                            </div>
-                        </div>
 
-                        <p class="incident-description">
-                            ${props.description || 'Sin descripción disponible'}
-                        </p>
+                                    ${locationDesc}
 
-                        <div class="incident-meta">
-                            <div class="incident-meta-item">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                </svg>
-                                <span>${timeAgo}</span>
-                            </div>
-                            <div class="incident-meta-item">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                    <circle cx="12" cy="10" r="3"></circle>
-                                </svg>
-                                <span>${coords[1].toFixed(4)}, ${coords[0].toFixed(4)}</span>
-                            </div>
-                        </div>
-                    `;
+                                    <p class="incident-description">
+                                        ${props.description || 'Sin descripción disponible'}
+                                    </p>
+
+                                    ${photosHtml}
+
+                                    <div class="incident-meta" style="justify-content: space-between;">
+                                        <div style="display: flex; gap: 1rem;">
+                                            <div class="incident-meta-item">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                                </svg>
+                                                <span>${timeAgo}</span>
+                                            </div>
+                                            <div class="incident-meta-item">
+                                                <span>${privacyIcon} ${reporterName}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
 
                 container.appendChild(card);
             });
+        }
+
+        // Photo Preview Logic
+        let selectedFiles = [];
+
+        function handlePhotoSelect(input) {
+            const files = Array.from(input.files);
+            const previewGrid = document.getElementById('photo-preview-grid');
+            const countLabel = document.getElementById('photo-count');
+
+            if (selectedFiles.length + files.length > 5) {
+                alert('Máximo 5 fotos permitidas');
+                return;
+            }
+
+            // Merge new files
+            selectedFiles = [...selectedFiles, ...files];
+
+            // Re-render preview
+            renderPhotoPreviews();
+
+            // Update input files
+            updateInputFiles(input);
+        }
+
+        function renderPhotoPreviews() {
+            const previewGrid = document.getElementById('photo-preview-grid');
+            const countLabel = document.getElementById('photo-count');
+
+            previewGrid.innerHTML = '';
+
+            selectedFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const div = document.createElement('div');
+                    div.style.position = 'relative';
+                    div.innerHTML = `
+                                        <img src="${e.target.result}" style="width: 100%; height: 60px; object-fit: cover; border-radius: 4px;">
+                                        <button type="button" onclick="removePhoto(${index})" 
+                                            style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                            ×
+                                        </button>
+                                    `;
+                    previewGrid.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            countLabel.textContent = `${selectedFiles.length}/5 fotos`;
+        }
+
+        function removePhoto(index) {
+            selectedFiles.splice(index, 1);
+            renderPhotoPreviews();
+            updateInputFiles(document.getElementById('evidence-photos'));
+        }
+
+        function updateInputFiles(input) {
+            const dt = new DataTransfer();
+            selectedFiles.forEach(file => dt.items.add(file));
+            input.files = dt.files;
         }
 
         function getTimeAgo(date) {
@@ -1025,5 +1255,27 @@
                 duration: 1
             });
         }
+
+        // Image Lightbox Functions
+        function openImageLightbox(url) {
+            const lightbox = document.getElementById('image-lightbox');
+            const img = document.getElementById('lightbox-image');
+            img.src = url;
+            lightbox.style.display = 'flex';
+        }
+
+        function closeImageLightbox() {
+            document.getElementById('image-lightbox').style.display = 'none';
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeImageLightbox();
+        });
+
+        // Close on background click
+        document.getElementById('image-lightbox').addEventListener('click', function (e) {
+            if (e.target === this) closeImageLightbox();
+        });
     </script>
 @endpush

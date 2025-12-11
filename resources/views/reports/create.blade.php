@@ -16,8 +16,25 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('report.store') }}">
+        <form method="POST" action="{{ route('report.store') }}" enctype="multipart/form-data">
             @csrf
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Tipo de reporte</label>
+                <div style="display: flex; gap: 1rem;">
+                    <label
+                        style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.375rem; flex: 1;">
+                        <input type="radio" name="privacy_level" value="ANONYMOUS" checked>
+                        <span>Anónimo</span>
+                    </label>
+                    <label
+                        style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.375rem; flex: 1;">
+                        <input type="radio" name="privacy_level" value="IDENTIFIED">
+                        <span>Con mi usuario</span>
+                    </label>
+                </div>
+            </div>
+
             <div style="margin-bottom: 1.5rem;">
                 <label for="category_id">Categoría</label>
                 <select id="category_id" name="category_id" required>
@@ -28,8 +45,22 @@
             </div>
 
             <div style="margin-bottom: 1.5rem;">
+                <label for="location_description">Detalle de ubicación (opcional)</label>
+                <input type="text" id="location_description" name="location_description"
+                    placeholder="Ej: Frente al parque, esquina sur...">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
                 <label for="description">Descripción</label>
                 <textarea id="description" name="description" rows="4" placeholder="Describe el incidente..."></textarea>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label for="evidence_photos">Fotos (opcional)</label>
+                <input type="file" id="evidence_photos" name="evidence_photos[]" multiple accept="image/*"
+                    style="padding: 0.5rem;">
+                <small style="color: var(--text-secondary); display: block; margin-top: 0.25rem;">Máximo 5MB por
+                    imagen.</small>
             </div>
 
             <div style="margin-bottom: 1.5rem;">

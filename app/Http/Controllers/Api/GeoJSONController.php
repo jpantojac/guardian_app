@@ -29,11 +29,23 @@ class GeoJSONController extends Controller
 
         $features = $query->select(
             'id',
+            'user_id', // Needed for reporter name logic
             'category_id',
+            'localidad_id',
             'description',
+            'location_description',
+            'privacy_level',
+            'status',
             'created_at',
             DB::raw("ST_AsGeoJSON(location) as geometry")
-        )->with('category:id,name,color,icon')->get();
+        )
+            ->with([
+                'category:id,name,color,icon',
+                'user:id,name',
+                'localidad:id,nombre',
+                'photos'
+            ])
+            ->get();
 
         $geoJsonFeatures = $features->map(function ($incident) {
             return [
@@ -45,6 +57,12 @@ class GeoJSONController extends Controller
                     'color' => $incident->category->color,
                     'icon' => $incident->category->icon,
                     'description' => $incident->description,
+                    'location_description' => $incident->location_description,
+                    'status' => $incident->status,
+                    'privacy_level' => $incident->privacy_level,
+                    'reporter_name' => $incident->reporter_name, // Uses accessor
+                    'localidad' => $incident->localidad ? $incident->localidad->nombre : null,
+                    'photos' => $incident->photos->map(fn($p) => $p->url),
                     'created_at' => $incident->created_at->toIso8601String(),
                 ]
             ];

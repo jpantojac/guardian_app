@@ -35,15 +35,14 @@ class IncidentController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'description' => 'nullable|string',
+            'description' => 'required|string', // Changed to required as it's usually main content
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
-            'image' => 'nullable|image|max:10240', // 10MB max
+            'location_description' => 'nullable|string|max:255',
+            'privacy_level' => 'required|in:ANONYMOUS,IDENTIFIED',
+            'photos' => 'nullable|array|max:3', // Allow up to 3 photos
+            'photos.*' => 'image|max:10240', // 10MB max per photo
         ]);
-
-        // Create geometry point
-        // DB::raw("ST_GeomFromText('POINT($lng $lat)', 4326)")
-        // Using Laravel 11 / PostGIS raw insertion for simplicity if custom casting isn't set up
 
         $lat = $request->latitude;
         $lng = $request->longitude;
@@ -52,14 +51,30 @@ class IncidentController extends Controller
         $incident->user_id = $request->user()->id;
         $incident->category_id = $request->category_id;
         $incident->description = $request->description;
+        $incident->location_description = $request->location_description;
+        $incident->privacy_level = $request->privacy_level;
         $incident->location = DB::raw("ST_SetSRID(ST_MakePoint($lng, $lat), 4326)");
         $incident->status = 'reported';
         $incident->save();
 
-        // Check for alerts (simplified logic)
+        // Handle Photos
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $index => $photo) {
+                $path = $photo->store('incident_photos', 'public');
+                $incident->photos()->create([
+                    'photo_path' => $path,
+                    'order' => $index + 1,
+                ]);
+            }
+        }
+
+        // Auto-assign Localidad using PostGIS
+        $incident->assignLocalidad();
+
+        // Check for alerts
         $this->checkAlerts($incident);
 
-        return response()->json($incident, 201);
+        return response()->json($incident->load('photos'), 201);
     }
 
     public function show(Incident $incident)
