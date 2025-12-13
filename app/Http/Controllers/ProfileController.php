@@ -33,11 +33,37 @@ class ProfileController extends Controller
         $user->name = $request->name;
 
         if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
+            $user->password = $request->password;
         }
 
         $user->save();
 
         return back()->with('success', 'Perfil actualizado correctamente.');
+    }
+
+    public function incidents(Request $request)
+    {
+        $query = auth()->user()->incidents()->select('*', \Illuminate\Support\Facades\DB::raw('ST_Y(location) as latitude, ST_X(location) as longitude'))->with(['category', 'photos']);
+
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->start_date) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->end_date) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        $incidents = $query->latest()->get();
+
+        $categories = \App\Models\Category::select('id', 'name')->get();
+
+        return response()->json([
+            'incidents' => $incidents,
+            'categories' => $categories
+        ]);
     }
 }

@@ -46,7 +46,7 @@
             justify-content: space-between;
             align-items: center;
             position: relative;
-            z-index: 1000;
+            z-index: 3000;
         }
 
         .navbar-brand {
@@ -154,7 +154,7 @@
             visibility: hidden;
             transform: translateY(-10px);
             transition: all 0.2s ease-out;
-            z-index: 1000;
+            z-index: 3001;
         }
 
         .profile-dropdown.show {
@@ -437,16 +437,99 @@
             width: 64px;
             height: 64px;
         }
+
+        /* Shared Incident Card Styles */
+        .incident-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .incident-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .incident-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+
+        .incident-card-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .incident-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+            color: #fff;
+            /* Ensure icon is visible if it's text */
+        }
+
+        .incident-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .incident-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+
+        .incident-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .incident-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .incident-category-tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: #F3F4F6;
+            color: var(--text-primary);
+        }
+
+        }
     </style>
     @stack('styles')
 </head>
 
 <body>
-    <nav class="navbar">
-        <a href="/" class="navbar-brand">
-
-            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="30px"
-                height="33px" viewBox="0 0 30 33" version="1.1">
+    <nav class="navbar"><a href="/" class="navbar-brand"><svg xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="33px" viewBox="0 0 30 33" version="1.1">
                 <g id="surface1">
                     <path
                         style=" stroke:none;fill-rule:nonzero;fill:rgb(99.215686%,99.215686%,99.215686%);fill-opacity:1;"
@@ -464,228 +547,216 @@
                     <path style=" stroke:none;fill-rule:nonzero;fill:rgb(1.176471%,1.176471%,1.176471%);fill-opacity:1;"
                         d="M 16.019531 10.816406 C 16.601562 11.148438 17.109375 11.625 17.347656 12.261719 C 17.523438 13.035156 17.453125 13.78125 17.023438 14.453125 C 16.660156 15.007812 16.195312 15.359375 15.550781 15.546875 C 14.6875 15.652344 13.882812 15.628906 13.160156 15.089844 C 12.636719 14.640625 12.308594 14.054688 12.199219 13.378906 C 12.152344 12.570312 12.417969 11.902344 12.9375 11.277344 C 13.789062 10.480469 14.972656 10.320312 16.019531 10.816406 Z M 16.019531 10.816406 " />
                 </g>
-            </svg>
-
-            <span>GuardianApp</span>
-
-        </a>
-
-        <!-- Desktop Navigation -->
-        <div class="nav-links desktop-nav">
-            <a href="/">Mapa</a>
-            @auth
-                <span class="user-name">{{ auth()->user()->name }}</span>
-                <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-logout">Salir</button>
-                </form>
-            @else
-                <button onclick="openLoginModal()" class="btn-login">Iniciar Sesión</button>
-            @endauth
-        </div>
-
-        <!-- Mobile Profile Avatar -->
-        @auth
-            <div class="profile-avatar" onclick="toggleProfileMenu()">
-                <div class="avatar-circle">
-                    @if(auth()->user()->profile_photo_path)
-                        <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Avatar"
-                            style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                    @else
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                    @endif
-                </div>
-
-                <!-- Dropdown Menu -->
-                <div class="profile-dropdown" id="profile-dropdown">
-                    <div class="dropdown-header">
-                        <div class="dropdown-avatar">
-                            @if(auth()->user()->profile_photo_path)
-                                <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Avatar"
-                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                            @else
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="12" cy="7" r="4"></circle>
-                                </svg>
-                            @endif
-                        </div>
-                        <div class="dropdown-user-info">
-                            <div class="dropdown-name">{{ auth()->user()->name }}</div>
-                            <div class="dropdown-email">{{ auth()->user()->email }}</div>
-                        </div>
-                    </div>
-                    <div class="dropdown-divider"></div>
-                    <button onclick="openProfileModal()" class="dropdown-item">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                        </svg>
-                        Editar Perfil
-                    </button>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="dropdown-item">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            </svg><span>GuardianApp</span></a><!-- Desktop Navigation -->
+        <div class="nav-links desktop-nav"><a href="/">Mapa</a>@auth <span
+                class="user-name">{{ auth()->user()->name }}</span>
+            <form action="{{ route('logout') }}" method="POST" style="display: inline;">@csrf <button type="submit"
+        class="btn btn-logout">Salir</button></form>@else <button onclick="openLoginModal()"
+                    class="btn-login">Iniciar Sesión</button>@endauth
+        </div><!-- Mobile Profile Avatar -->@auth <div class="profile-avatar" onclick="toggleProfileMenu()">
+            <div class="avatar-circle">
+                @if(auth()->user()->profile_photo_path)
+                    <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Avatar"
+                style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">@else <svg width="20"
+                        height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>@endif
+            </div><!-- Dropdown Menu -->
+            <div class="profile-dropdown" id="profile-dropdown">
+                <div class="dropdown-header">
+                    <div class="dropdown-avatar">
+                        @if(auth()->user()->profile_photo_path)
+                            <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Avatar"
+                        style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">@else <svg
+                                width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" y1="12" x2="9" y2="12"></line>
-                            </svg>
-                            Cerrar Sesión
-                        </button>
-                    </form>
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>@endif
+                    </div>
+                    <div class="dropdown-user-info">
+                        <div class="dropdown-name">{{ auth()->user()->name }}</div>
+                        <div class="dropdown-email">{{ auth()->user()->email }}</div>
+                    </div>
                 </div>
+                <div class="dropdown-divider"></div><button onclick="openProfileModal()" class="dropdown-item"><svg
+                        width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>Editar Perfil </button>
+                <form action="{{ route('logout') }}" method="POST">@csrf <button type="submit"
+                        class="dropdown-item"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>Cerrar Sesión </button></form>
             </div>
-        @else
-            <button onclick="openLoginModal()" class="btn-login mobile-login">Iniciar Sesión</button>
-        @endauth
+        </div>@else <button onclick="openLoginModal()" class="btn-login mobile-login">Iniciar Sesión</button>@endauth
     </nav>
-
     <main class="@yield('main-class', 'with-padding')">
         @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
-            </div>
-        @endif
-
+        </div>@endif
         @if(session('error'))
             <div class="alert alert-danger" style="background: #fee2e2; color: #991b1b; border: 2px solid #f87171;">
                 {{ session('error') }}
-            </div>
-        @endif
-
+        </div>@endif
         @yield('content')
-    </main>
-
-    <!-- Edit Profile Modal -->
+    </main><!-- Edit Profile Modal -->
     <div id="profile-modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem 0;">
         <div class="card"
             style="width: 100%; max-width: 500px; position: relative; animation: slideUp 0.3s ease-out; margin: auto;">
             <button onclick="closeProfileModal()"
-                style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; color: var(--text-secondary); z-index: 1;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; color: var(--text-secondary); z-index: 1;"><svg
+                    width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-
+                </svg></button>
             <h2 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem;">Editar Perfil</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Actualiza tu información personal</p>
-
-            @auth
-                <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-
-                    <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1.5rem;">
-                        <div style="position: relative; width: 80px; height: 80px; flex-shrink: 0;">
-                            @if(auth()->user()->profile_photo_path)
-                                <img id="profile-photo-preview"
-                                    src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Profile Photo"
-                                    style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                            @else
-                                <div id="profile-photo-placeholder"
-                                    style="width: 100%; height: 100%; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="12" cy="7" r="4"></circle>
-                                    </svg>
-                                </div>
-                                <img id="profile-photo-preview" src="" alt="Profile Photo"
-                                    style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                            @endif
-                        </div>
-
-                        <div style="flex: 1;">
-                            <label for="profile_photo"
-                                style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem;">Foto de Perfil</label>
-                            <input type="file" id="profile_photo" name="profile_photo" accept="image/*"
-                                onchange="previewProfilePhoto(this)">
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 1rem;">
-                        <label for="profile_name">Nombre</label>
-                        <input type="text" id="profile_name" name="name" value="{{ auth()->user()->name }}" required>
-                    </div>
-
-                    <div style="margin-bottom: 1rem;">
-                        <label for="profile_email">Correo Electrónico</label>
-                        <input type="email" id="profile_email" value="{{ auth()->user()->email }}" disabled
-                            style="background-color: #f3f4f6; color: var(--text-secondary); cursor: not-allowed;">
-                    </div>
-
-                    <div style="border-top: 1px solid var(--border-color); margin: 1.5rem 0; padding-top: 1.5rem;">
-                        <h3 style="margin-top: 0; font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">Cambiar
-                            Contraseña</h3>
-                        <p style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 1rem;">
-                            Opcional
-                        </p>
-
-                        <div style="margin-bottom: 1rem; position: relative;">
-                            <label for="profile_password">Nueva Contraseña</label>
-                            <div style="position: relative;">
-                                <input type="password" id="profile_password" name="password" minlength="8"
-                                    style="padding-right: 2.5rem;" oninput="validatePassword()">
-                                <button type="button" onclick="togglePasswordVisibility('profile_password')"
-                                    style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0;">
-                                    <svg id="icon-profile_password" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="2">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                </button>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Actualiza tu información personal</p>@auth
+                <div style="display: flex; gap: 1rem; border-bottom: 2px solid #F5F5F5; margin-bottom: 1.5rem;"><button
+                        type="button" class="tab-btn active" onclick="switchProfileTab('profile-data')"
+                        style="padding: 0.75rem 1rem; background: none; border: none; font-weight: 600; cursor: pointer; color: var(--primary); border-bottom: 2px solid var(--primary); margin-bottom: -2px;">Datos
+                        Personales </button><button type="button" class="tab-btn"
+                        onclick="switchProfileTab('profile-history')"
+                        style="padding: 0.75rem 1rem; background: none; border: none; font-weight: 500; cursor: pointer; color: var(--text-secondary);">Historial
+                        de Reportes </button></div><!-- Profile Data Tab -->
+                <div id="profile-data" class="tab-content" style="display: block;">
+                    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">@csrf
+                        @method('PUT') <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1.5rem;">
+                            <div style="position: relative; width: 80px; height: 80px; flex-shrink: 0;">
+                                @if(auth()->user()->profile_photo_path)
+                                    <img id="profile-photo-preview"
+                                        src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Profile Photo"
+                                style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">@else <div
+                                            id="profile-photo-placeholder"
+                                            style="width: 100%; height: 100%; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                        </div><img id="profile-photo-preview" src="" alt="Profile Photo"
+                                    style="display: none; width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">@endif
                             </div>
-                            <small id="password-error" style="color: var(--danger); display: none; margin-top: 0.25rem;">
-                                La contraseña debe tener al menos 8 caracteres.
-                            </small>
+                            <div style="flex: 1;"><label for="profile_photo"
+                                    style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem;">Foto de
+                                    Perfil</label><input type="file" id="profile_photo" name="profile_photo"
+                                    accept="image/*" onchange="previewProfilePhoto(this)"></div>
                         </div>
-
-                        <div style="margin-bottom: 1rem;">
-                            <label for="profile_password_confirmation">Confirmar Contraseña</label>
-                            <div style="position: relative;">
-                                <input type="password" id="profile_password_confirmation" name="password_confirmation"
-                                    style="padding-right: 2.5rem;" oninput="validatePassword()">
-                                <button type="button" onclick="togglePasswordVisibility('profile_password_confirmation')"
-                                    style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0;">
-                                    <svg id="icon-profile_password_confirmation" width="20" height="20" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                </button>
+                        <div style="margin-bottom: 1rem;"><label for="profile_name">Nombre</label><input type="text"
+                                id="profile_name" name="name" value="{{ auth()->user()->name }}" required></div>
+                        <div style="margin-bottom: 1rem;"><label for="profile_email">Correo Electrónico</label><input
+                                type="email" id="profile_email" value="{{ auth()->user()->email }}" disabled
+                                style="background-color: #f3f4f6; color: var(--text-secondary); cursor: not-allowed;"></div>
+                        <div style="border-top: 1px solid var(--border-color); margin: 1.5rem 0; padding-top: 1.5rem;">
+                            <h3 style="margin-top: 0; font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">Cambiar
+                                Contraseña</h3>
+                            <p style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 1rem;">Opcional </p>
+                            <div style="margin-bottom: 1rem; position: relative;"><label for="profile_password">Nueva
+                                    Contraseña</label>
+                                <div style="position: relative;"><input type="password" id="profile_password"
+                                        name="password" minlength="8" style="padding-right: 2.5rem;"
+                                        oninput="validatePassword()"><button type="button"
+                                        onclick="togglePasswordVisibility('profile_password')"
+                                        style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0;"><svg
+                                            id="icon-profile_password" width="20" height="20" viewBox="0 0 24 24"
+                                            fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg></button></div><small id="password-error"
+                                    style="color: var(--danger); display: none; margin-top: 0.25rem;">La contraseña debe
+                                    tener al menos 8 caracteres. </small>
                             </div>
-                            <small id="password-match-error"
-                                style="color: var(--danger); display: none; margin-top: 0.25rem;">
-                                Las contraseñas no coinciden.
-                            </small>
+                            <div style="margin-bottom: 1rem;"><label for="profile_password_confirmation">Confirmar
+                                    Contraseña</label>
+                                <div style="position: relative;"><input type="password" id="profile_password_confirmation"
+                                        name="password_confirmation" style="padding-right: 2.5rem;"
+                                        oninput="validatePassword()"><button type="button"
+                                        onclick="togglePasswordVisibility('profile_password_confirmation')"
+                                        style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0;"><svg
+                                            id="icon-profile_password_confirmation" width="20" height="20"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                            <circle cx="12" cy="12" r="3"></circle>
+                                        </svg></button></div><small id="password-match-error"
+                                    style="color: var(--danger); display: none; margin-top: 0.25rem;">Las contraseñas no
+                                    coinciden. </small>
+                            </div>
                         </div>
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem;"><button type="button"
+                                onclick="closeProfileModal()" class="btn btn-secondary">Cancelar</button><button
+                                type="submit" class="btn btn-primary">Guardar Cambios</button></div>
+                    </form>
+                </div><!-- Incidents History Tab -->
+                <div id="profile-history" class="tab-content" style="display: none;">
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 140px;"><label style="font-size: 0.75rem;">Fecha
+                                Inicio</label><input type="date" id="history-start-date" onchange="fetchIncidentsHistory()">
+                        </div>
+                        <div style="flex: 1; min-width: 140px;"><label style="font-size: 0.75rem;">Fecha Fin</label><input
+                                type="date" id="history-end-date" onchange="fetchIncidentsHistory()"></div>
+                        <div style="flex: 1; min-width: 140px;"><label style="font-size: 0.75rem;">Categoría</label><select
+                                id="history-category" onchange="fetchIncidentsHistory()">
+                                <option value="">Todas</option><!-- Populated via JS -->
+                            </select></div>
                     </div>
-
-                    <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-                        <button type="button" onclick="closeProfileModal()" class="btn btn-secondary">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <button
+                        onclick="closeProfileModal(); if(typeof showUserIncidentsOnMap === 'function') showUserIncidentsOnMap();"
+                        style="width: 100%; margin-bottom: 1rem; padding: 0.5rem; background: var(--surface); color: var(--primary); border: 1px dashed var(--primary); border-radius: 0.375rem; cursor: pointer; font-weight: 500;">
+                        📍 Ver todos mis reportes en el mapa
+                    </button>
+                    <div id="history-loading"
+                        style="text-align: center; padding: 2rem; display: none; color: var(--text-secondary);">Cargando
+                        reportes... </div>
+                    <div id="history-list"
+                        style="display: flex; flex-direction: column; gap: 1rem; max-height: 400px; overflow-y: auto;">
+                        <!-- Incidents will be rendered here -->
                     </div>
-                </form>
-            @endauth
+            </div>@endauth
         </div>
-    </div>
+    </div><!-- Shared Helpers -->
+    <script>
+        const categoryConfig = {
+            'Hurto a personas': { color: '#dc2626', icon: '👤' },
+            'Hurto a residencias': { color: '#ea580c', icon: '🏠' },
+            'Hurto a comercio': { color: '#ca8a04', icon: '🏪' },
+            'Violencia intrafamiliar': { color: '#7c3aed', icon: '👨‍👩‍👧' },
+            'Homicidio': { color: '#be123c', icon: '⚠️' },
+            'Extorsión': { color: '#0891b2', icon: '💰' },
+            'Lesiones personales': { color: '#ec4899', icon: '🩹' },
+            'Otro': { color: '#6b7280', icon: '📍' }
+        };
 
-    <!-- Leaflet JS -->
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 60) {
+                return `Hace ${diffMins} ${diffMins === 1 ? 'minuto' : 'minutos'}`;
+            } else if (diffHours < 24) {
+                return `Hace ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`;
+            } else {
+                return `Hace ${diffDays} ${diffDays === 1 ? 'día' : 'días'}`;
+            }
+        }
+
+
+    </script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script> // Profile dropdown menu toggle
 
-    <script>
-        // Profile dropdown menu toggle
         function toggleProfileMenu() {
             const dropdown = document.getElementById('profile-dropdown');
+
             if (dropdown) {
                 dropdown.classList.toggle('show');
             }
@@ -706,14 +777,20 @@
         // Auto-hide success notifications
         document.addEventListener('DOMContentLoaded', function () {
             const successAlert = document.querySelector('.alert-success');
+
             if (successAlert) {
                 setTimeout(function () {
                     successAlert.style.transition = 'opacity 0.5s ease-out';
                     successAlert.style.opacity = '0';
+
                     setTimeout(function () {
                         successAlert.remove();
-                    }, 500);
-                }, 5000); // Hide after 5 seconds
+                    }
+
+                        , 500);
+                }
+
+                    , 5000); // Hide after 5 seconds
             }
         });
 
@@ -739,6 +816,7 @@
                         preview.src = e.target.result;
                         preview.style.display = 'block';
                     }
+
                     if (placeholder) {
                         placeholder.style.display = 'none';
                     }
@@ -755,7 +833,9 @@
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
-            } else {
+            }
+
+            else {
                 input.type = 'password';
                 icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
             }
@@ -775,7 +855,9 @@
             if (password.length > 0 && password.length < 8) {
                 lengthError.style.display = 'block';
                 isValid = false;
-            } else {
+            }
+
+            else {
                 lengthError.style.display = 'none';
             }
 
@@ -783,7 +865,9 @@
             if (confirm.length > 0 && password !== confirm) {
                 matchError.style.display = 'block';
                 isValid = false;
-            } else {
+            }
+
+            else {
                 matchError.style.display = 'none';
             }
 
@@ -793,16 +877,214 @@
             }
 
             submitBtn.disabled = !isValid;
+
             if (!isValid) {
                 submitBtn.style.opacity = '0.5';
                 submitBtn.style.cursor = 'not-allowed';
-            } else {
+            }
+
+            else {
                 submitBtn.style.opacity = '1';
                 submitBtn.style.cursor = 'pointer';
             }
         }
-    </script>
 
+        function switchProfileTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.color = 'var(--text-secondary)';
+                btn.style.borderBottom = 'none';
+                btn.style.fontWeight = '500';
+            });
+
+            const activeBtn = document.querySelector(`.tab-btn[onclick="switchProfileTab('${tabId}')"]`);
+
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.style.color = 'var(--primary)';
+                activeBtn.style.borderBottom = '2px solid var(--primary)';
+                activeBtn.style.fontWeight = '600';
+            }
+
+            if (tabId === 'profile-history') {
+                fetchIncidentsHistory();
+            }
+        }
+
+        let categoriesLoaded = false;
+
+
+        function fetchIncidentsHistory() {
+            const startDate = document.getElementById('history-start-date').value;
+            const endDate = document.getElementById('history-end-date').value;
+            const categoryId = document.getElementById('history-category').value;
+            const listContainer = document.getElementById('history-list');
+            const loading = document.getElementById('history-loading');
+
+            loading.style.display = 'block';
+            listContainer.innerHTML = '';
+
+            const params = new URLSearchParams({
+                start_date: startDate,
+                end_date: endDate,
+                category_id: categoryId
+            });
+
+            window.historyIncidents = []; // Global storage for incidents
+
+            fetch(`/profile/incidents?${params.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+
+                    if (!categoriesLoaded && data.categories) {
+                        const select = document.getElementById('history-category');
+                        data.categories.forEach(cat => {
+                            if (!select.querySelector(`option[value="${cat.id}"]`)) {
+                                const opt = document.createElement('option');
+                                opt.value = cat.id;
+                                opt.textContent = cat.name;
+                                select.appendChild(opt);
+                            }
+                        });
+                        categoriesLoaded = true;
+                    }
+
+                    if (data.incidents.length === 0) {
+                        listContainer.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No se encontraron reportes.</p>';
+                        return;
+                    }
+
+                    data.incidents.forEach((incident, index) => {
+                        window.historyIncidents.push(incident);
+                        const date = new Date(incident.created_at);
+                        const timeAgo = getTimeAgo(date);
+                        const categoryName = incident.category ? incident.category.name : 'Otro';
+                        const config = categoryConfig[categoryName] || categoryConfig['Otro'];
+
+                        // Privacy / Reporter Info
+                        const privacyIcon = incident.privacy_level === 'IDENTIFIED' ? '👤' : '🔒';
+                        const reporterLabel = incident.privacy_level === 'IDENTIFIED' ? 'Identificado' : 'Anónimo';
+
+                        const card = document.createElement('div');
+                        card.className = 'incident-card';
+
+                        // Location Description
+                        const locationDesc = incident.location_description ? `
+                            <div style="font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+                                <span>📍</span> ${incident.location_description}
+                            </div>` : '';
+
+                        // Photos
+                        let photosHtml = '';
+                        if (incident.photos && incident.photos.length > 0) {
+                            photosHtml = `
+                                <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+                                    ${incident.photos.slice(0, 3).map(photo => `
+                                        <div style="width: 40px; height: 40px; border-radius: 4px; overflow: hidden; border: 1px solid #e5e7eb; cursor: pointer;">
+                                            <img src="/storage/${photo.photo_path}" style="width: 100%; height: 100%; object-fit: cover;"
+                                                onclick="event.stopPropagation(); openImageLightbox('/storage/${photo.photo_path}')">
+                                        </div>
+                                    `).join('')}
+                                    ${incident.photos.length > 3 ? `<div style="width: 40px; height: 40px; background: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6b7280;">+${incident.photos.length - 3}</div>` : ''}
+                                </div>
+                            `;
+                        }
+
+                        card.innerHTML = `
+                            <div class="incident-card-header">
+                                <div class="incident-card-title">
+                                    <div class="incident-icon" style="background-color: ${config.color};">
+                                        ${config.icon}
+                                    </div>
+                                    <div>
+                                        <h3 style="font-size: 1rem; font-weight: 600; margin: 0; color: var(--text-primary);">
+                                            ${categoryName}
+                                        </h3>
+                                        <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.25rem;">
+                                            <span class="incident-category-tag">${categoryName}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            ${locationDesc}
+
+                            ${photosHtml}
+
+                            <p class="incident-description">
+                                ${incident.description || 'Sin descripción disponible'}
+                            </p>
+
+                            <div class="incident-meta" style="justify-content: space-between; align-items: center;">
+                                <div style="display: flex; gap: 1rem;">
+                                    <div class="incident-meta-item">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        <span>${timeAgo}</span>
+                                    </div>
+                                    <div class="incident-meta-item">
+                                        <span>${privacyIcon} ${reporterLabel}</span>
+                                    </div>
+                                </div>
+                                <button onclick="closeProfileModal(); if(typeof focusIncidentOnMap === 'function') focusIncidentOnMap(${incident.latitude}, ${incident.longitude}, window.historyIncidents[${index}]);" 
+                                    style="background: none; border: none; color: var(--primary); font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
+                                    Ver en mapa <span>→</span>
+                                </button>
+                            </div>
+                        `;
+                        listContainer.appendChild(card);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    loading.style.display = 'none';
+                    listContainer.innerHTML = '<p style="color: var(--danger); text-align: center;">Error al cargar historial.</p>';
+                });
+        }
+    </script>
+    <!-- Image Lightbox Modal -->
+    <div id="image-lightbox"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; cursor: zoom-out;">
+        <img id="lightbox-image" src=""
+            style="max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); object-fit: contain;">
+        <button onclick="closeImageLightbox()"
+            style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        </button>
+    </div>
+
+    <script>
+        // Image Lightbox Functions
+        function openImageLightbox(url) {
+            const lightbox = document.getElementById('image-lightbox');
+            const img = document.getElementById('lightbox-image');
+            img.src = url;
+            lightbox.style.display = 'flex';
+        }
+
+        function closeImageLightbox() {
+            document.getElementById('image-lightbox').style.display = 'none';
+        }
+
+        // Close on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeImageLightbox();
+        });
+
+        // Close on background click
+        document.getElementById('image-lightbox').addEventListener('click', function (e) {
+            if (e.target === this) closeImageLightbox();
+        });
+    </script>
     @stack('scripts')
 </body>
 

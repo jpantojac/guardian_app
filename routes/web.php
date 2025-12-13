@@ -25,4 +25,5 @@ Route::middleware('auth')->group(function () {
 
     // Profile routes
     Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/incidents', [\App\Http\Controllers\ProfileController::class, 'incidents'])->name('profile.incidents');
 });

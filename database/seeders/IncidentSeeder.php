@@ -14,6 +14,8 @@ class IncidentSeeder extends Seeder
     {
         $categories = Category::all();
         $user = User::where('role', 'user')->first();
+        $admin = User::where('role', 'admin')->first();
+        $users = collect([$user, $admin])->filter();
 
         // Bogotá Bounding Box
         $minLat = 4.45;
@@ -44,7 +46,7 @@ class IncidentSeeder extends Seeder
             }
 
             Incident::create([
-                'user_id' => $user->id,
+                'user_id' => $users->random()->id,
                 'category_id' => $category->id,
                 'description' => 'Reporte de prueba generado automáticamente.',
                 'location' => DB::raw("ST_SetSRID(ST_MakePoint($lng, $lat), 4326)"),

@@ -205,12 +205,14 @@
             </div>
 
             <!-- Warning Message -->
-            <div style="background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 1.5rem; display: flex; gap: 0.75rem;">
+            <div
+                style="background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; padding: 0.75rem; border-radius: 0.375rem; margin-bottom: 1.5rem; display: flex; gap: 0.75rem;">
                 <span style="font-size: 1.25rem;">⚠️</span>
                 <div>
                     <strong style="display: block; font-size: 0.875rem;">Importante</strong>
                     <p style="font-size: 0.8125rem; margin: 0; line-height: 1.4;">
-                        El reporte voluntario de incidente debe ser real ya que es información vital para la comunidad. Por favor, reporta con responsabilidad.
+                        El reporte voluntario de incidente debe ser real ya que es información vital para la comunidad. Por
+                        favor, reporta con responsabilidad.
                     </p>
                 </div>
             </div>
@@ -259,8 +261,8 @@
                     <label>Fotos de Evidencia</label>
                     <div
                         style="border: 1px dashed var(--border-color); padding: 1rem; border-radius: 0.375rem; text-align: center;">
-                        <input type="file" id="evidence-photos" name="evidence_photos[]" multiple
-                            accept="image/*" style="display: none;" onchange="handlePhotoSelect(this)">
+                        <input type="file" id="evidence-photos" name="evidence_photos[]" multiple accept="image/*"
+                            style="display: none;" onchange="handlePhotoSelect(this)">
                         <label for="evidence-photos" style="cursor: pointer; color: var(--primary); font-weight: 500;">
                             Seleccionar imágenes
                         </label>
@@ -290,14 +292,18 @@
                 </div>
 
                 <!-- CAPTCHA -->
-                <div style="margin-bottom: 1.5rem; background: #f9fafb; padding: 1rem; border-radius: 0.375rem; border: 1px solid var(--border-color);">
-                    <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Verificación de Seguridad</label>
+                <div
+                    style="margin-bottom: 1.5rem; background: #f9fafb; padding: 1rem; border-radius: 0.375rem; border: 1px solid var(--border-color);">
+                    <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Verificación de
+                        Seguridad</label>
                     <div style="display: flex; align-items: center; gap: 1rem;">
-                        <span style="font-size: 1.125rem; font-family: monospace; letter-spacing: 2px;">¿Cuánto es {{ $num1 }} + {{ $num2 }}?</span>
-                        <input type="number" name="captcha" required placeholder="?" 
+                        <span style="font-size: 1.125rem; font-family: monospace; letter-spacing: 2px;">¿Cuánto es
+                            {{ $num1 }} + {{ $num2 }}?</span>
+                        <input type="number" name="captcha" required placeholder="?"
                             style="width: 80px; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.375rem; text-align: center;">
                     </div>
-                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">Resuelve la operación para demostrar que eres humano.</p>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">Resuelve la operación
+                        para demostrar que eres humano.</p>
                 </div>
 
                 <div style="margin-bottom: 1.5rem; font-size: 0.875rem;">
@@ -572,16 +578,7 @@
         let reportMap;
         let reportMarker;
 
-        const categoryConfig = {
-            'Hurto a personas': { color: '#dc2626', icon: '👤' },
-            'Hurto a residencias': { color: '#ea580c', icon: '🏠' },
-            'Hurto a comercio': { color: '#ca8a04', icon: '🏪' },
-            'Violencia intrafamiliar': { color: '#7c3aed', icon: '👨‍👩‍👧' },
-            'Homicidio': { color: '#be123c', icon: '⚠️' },
-            'Extorsión': { color: '#0891b2', icon: '💰' },
-            'Lesiones personales': { color: '#ec4899', icon: '🩹' },
-            'Otro': { color: '#6b7280', icon: '📍' }
-        };
+
 
         document.addEventListener('DOMContentLoaded', function () {
             map = L.map('map', {
@@ -695,15 +692,15 @@
                 userLocationMarker = L.marker(e.latlng, {
                     icon: L.divIcon({
                         html: `
-                                                                                            <div style="
-                                                                                                width: 20px;
-                                                                                                height: 20px;
-                                                                                                background-color: #3b82f6;
-                                                                                                border: 4px solid white;
-                                                                                                border-radius: 50%;
-                                                                                                box-shadow: 0 0 0 2px #3b82f6, 0 2px 8px rgba(0,0,0,0.3);
-                                                                                            "></div>
-                                                                                        `,
+                                                                                                                <div style="
+                                                                                                                    width: 20px;
+                                                                                                                    height: 20px;
+                                                                                                                    background-color: #3b82f6;
+                                                                                                                    border: 4px solid white;
+                                                                                                                    border-radius: 50%;
+                                                                                                                    box-shadow: 0 0 0 2px #3b82f6, 0 2px 8px rgba(0,0,0,0.3);
+                                                                                                                "></div>
+                                                                                                        `,
                         className: '',
                         iconSize: [20, 20],
                         iconAnchor: [10, 10]
@@ -766,10 +763,10 @@
                 const div = document.createElement('label');
                 div.className = 'category-checkbox';
                 div.innerHTML = `
-                                                                                    <input type="checkbox" value="${category}" checked>
-                                                                                    <span class="category-color" style="background-color: ${config.color};"></span>
-                                                                                    <span class="category-label">${category}</span>
-                                                                                `;
+                                                                                                        <input type="checkbox" value="${category}" checked>
+                                                                                                        <span class="category-color" style="background-color: ${config.color};"></span>
+                                                                                                        <span class="category-label">${category}</span>
+                                                                                                    `;
 
                 const checkbox = div.querySelector('input');
                 checkbox.addEventListener('change', function () {
@@ -792,21 +789,21 @@
             const config = categoryConfig[category] || categoryConfig['Otro'];
             return L.divIcon({
                 html: `
-                                                                                    <div style="
-                                                                                        width: 32px;
-                                                                                        height: 32px;
-                                                                                        background-color: ${config.color};
-                                                                                        border: 3px solid white;
-                                                                                        border-radius: 50%;
-                                                                                        display: flex;
-                                                                                        align-items: center;
-                                                                                        justify-content: center;
-                                                                                        font-size: 16px;
-                                                                                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                                                                                    ">
-                                                                                        ${config.icon}
-                                                                                    </div>
-                                                                                `,
+                                                                                                        <div style="
+                                                                                                            width: 32px;
+                                                                                                            height: 32px;
+                                                                                                            background-color: ${config.color};
+                                                                                                            border: 3px solid white;
+                                                                                                            border-radius: 50%;
+                                                                                                            display: flex;
+                                                                                                            align-items: center;
+                                                                                                            justify-content: center;
+                                                                                                            font-size: 16px;
+                                                                                                            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                                                                                                        ">
+                                                                                                            ${config.icon}
+                                                                                                        </div>
+                                                                                                    `,
                 className: '',
                 iconSize: [32, 32],
                 iconAnchor: [16, 16],
@@ -835,47 +832,47 @@
             let photosHtml = '';
             if (props.photos && props.photos.length > 0) {
                 photosHtml = `
-                        <div style="display: flex; gap: 4px; margin-top: 8px; overflow: hidden;">
-                            ${props.photos.slice(0, 3).map(url => `
-                                <div style="width: 40px; height: 40px; border-radius: 4px; overflow: hidden; cursor: pointer;" onclick="openImageLightbox('${url}')">
-                                    <img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">
-                                </div>
-                            `).join('')}
-                            ${props.photos.length > 3 ? `<div style="width: 40px; height: 40px; background: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6b7280;">+${props.photos.length - 3}</div>` : ''}
-                        </div>
-                    `;
+                                            <div style="display: flex; gap: 4px; margin-top: 8px; overflow: hidden;">
+                                                ${props.photos.slice(0, 3).map(url => `
+                                                    <div style="width: 40px; height: 40px; border-radius: 4px; overflow: hidden; cursor: pointer;" onclick="openImageLightbox('${url}')">
+                                                        <img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                    </div>
+                                                `).join('')}
+                                                ${props.photos.length > 3 ? `<div style="width: 40px; height: 40px; background: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6b7280;">+${props.photos.length - 3}</div>` : ''}
+                                            </div>
+                                        `;
             }
 
             return `
-                    <div style="font-family: 'Inter', sans-serif; width: 260px;">
-                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <div style="width: 24px; height: 24px; border-radius: 50%; background: ${config.color}; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                    ${config.icon}
-                                </div>
-                                <strong style="font-size: 14px; color: #111827;">${category}</strong>
-                            </div>
-                        <!-- Status hidden as requested -->
-                        </div>
+                                        <div style="font-family: 'Inter', sans-serif; width: 260px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                                <div style="display: flex; align-items: center; gap: 8px;">
+                                                    <div style="width: 24px; height: 24px; border-radius: 50%; background: ${config.color}; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                                        ${config.icon}
+                                                    </div>
+                                                    <strong style="font-size: 14px; color: #111827;">${category}</strong>
+                                                </div>
+                                            <!-- Status hidden as requested -->
+                                            </div>
 
-                        ${props.location_description ? `
-                            <div style="font-size: 11px; color: #4b5563; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
-                                <span>📍</span> ${props.location_description}
-                            </div>
-                        ` : ''}
+                                            ${props.location_description ? `
+                                                <div style="font-size: 11px; color: #4b5563; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                                                    <span>📍</span> ${props.location_description}
+                                                </div>
+                                            ` : ''}
 
-                        <p style="margin: 0 0 8px 0; font-size: 12px; color: #374151; line-height: 1.4;">
-                            ${props.description || 'Sin descripción'}
-                        </p>
+                                            <p style="margin: 0 0 8px 0; font-size: 12px; color: #374151; line-height: 1.4;">
+                                                ${props.description || 'Sin descripción'}
+                                            </p>
 
-                        ${photosHtml}
+                                            ${photosHtml}
 
-                        <div style="margin-top: 8px; font-size: 10px; color: #9ca3af; display: flex; justify-content: space-between;">
-                            <span>${timeAgo}</span>
-                            <span>${props.privacy_level === 'IDENTIFIED' ? '👤 Usuario' : '🔒 Anónimo'}</span>
-                        </div>
-                    </div>
-                `;
+                                            <div style="margin-top: 8px; font-size: 10px; color: #9ca3af; display: flex; justify-content: space-between;">
+                                                <span>${timeAgo}</span>
+                                                <span>${props.privacy_level === 'IDENTIFIED' ? '👤 Usuario' : '🔒 Anónimo'}</span>
+                                            </div>
+                                        </div>
+                                    `;
         }
 
         function applyFilters() {
@@ -889,7 +886,7 @@
                 const timeMatch = incidentDate >= hoursAgo;
                 const categoryMatch = currentFilters.categories.includes(category);
 
-                let distanceMatch = true;
+                let distanceMatch = false;
                 if (userLocation) {
                     const coords = feature.geometry.coordinates;
                     const distance = calculateDistance(
@@ -1093,31 +1090,31 @@
 
                 // Location Description
                 const locationDesc = props.location_description ? `
-                                    <div style="font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
-                                        <span>📍</span> ${props.location_description}
-                                    </div>` : '';
+                                                        <div style="font-size: 0.875rem; color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+                                                            <span>📍</span> ${props.location_description}
+                                                        </div>` : '';
 
                 // Localidad
                 const localidadBadge = props.localidad ? `
-                                    <span style="background: #EEF2FF; color: #4F46E5; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem;">
-                                        ${props.localidad}
-                                    </span>` : '';
+                                                        <span style="background: #EEF2FF; color: #4F46E5; padding: 0.125rem 0.5rem; border-radius: 999px; font-size: 0.75rem;">
+                                                            ${props.localidad}
+                                                        </span>` : '';
 
                 // Photos Carousel / Preview
                 let photosHtml = '';
                 if (props.photos && props.photos.length > 0) {
                     photosHtml = `
-                                        <div style="margin-bottom: 0.75rem; overflow-x: auto; display: flex; gap: 0.5rem; padding-bottom: 0.5rem;">
-                                        ${props.photos.map(url => `
-                                            <img src="${url}" 
-                                                onclick="event.stopPropagation(); openImageLightbox('${url}')"
-                                                style="height: 60px; width: 60px; object-fit: cover; border-radius: 0.375rem; border: 1px solid var(--border-color); flex-shrink: 0; cursor: zoom-in; transition: transform 0.2s;"
-                                                onmouseover="this.style.transform='scale(1.1)'"
-                                                onmouseout="this.style.transform='scale(1)'"
-                                            >
-                                        `).join('')}
-                                    </div>
-                                `;
+                                                            <div style="margin-bottom: 0.75rem; overflow-x: auto; display: flex; gap: 0.5rem; padding-bottom: 0.5rem;">
+                                                            ${props.photos.map(url => `
+                                                                <img src="${url}" 
+                                                                    onclick="event.stopPropagation(); openImageLightbox('${url}')"
+                                                                    style="height: 60px; width: 60px; object-fit: cover; border-radius: 0.375rem; border: 1px solid var(--border-color); flex-shrink: 0; cursor: zoom-in; transition: transform 0.2s;"
+                                                                    onmouseover="this.style.transform='scale(1.1)'"
+                                                                    onmouseout="this.style.transform='scale(1)'"
+                                                                >
+                                                            `).join('')}
+                                                        </div>
+                                                    `;
                 }
 
                 const card = document.createElement('div');
@@ -1125,47 +1122,47 @@
                 card.onclick = () => focusIncidentOnMap(coords[1], coords[0]);
 
                 card.innerHTML = `
-                                    <div class="incident-card-header">
-                                        <div class="incident-card-title">
-                                            <div class="incident-icon" style="background-color: ${config.color};">
-                                                ${config.icon}
-                                            </div>
-                                            <div>
-                                                <h3 style="font-size: 1rem; font-weight: 600; margin: 0; color: var(--text-primary);">
-                                                    ${category}
-                                                </h3>
-                                                <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.25rem;">
-                                                    <span class="incident-category-tag">${category}</span>
-                                                    ${localidadBadge}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- Status hidden as requested -->
-                                    </div>
+                                                        <div class="incident-card-header">
+                                                            <div class="incident-card-title">
+                                                                <div class="incident-icon" style="background-color: ${config.color};">
+                                                                    ${config.icon}
+                                                                </div>
+                                                                <div>
+                                                                    <h3 style="font-size: 1rem; font-weight: 600; margin: 0; color: var(--text-primary);">
+                                                                        ${category}
+                                                                    </h3>
+                                                                    <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.25rem;">
+                                                                        <span class="incident-category-tag">${category}</span>
+                                                                        ${localidadBadge}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- Status hidden as requested -->
+                                                        </div>
 
-                                    ${locationDesc}
+                                                        ${locationDesc}
 
-                                    <p class="incident-description">
-                                        ${props.description || 'Sin descripción disponible'}
-                                    </p>
+                                                        <p class="incident-description">
+                                                            ${props.description || 'Sin descripción disponible'}
+                                                        </p>
 
-                                    ${photosHtml}
+                                                        ${photosHtml}
 
-                                    <div class="incident-meta" style="justify-content: space-between;">
-                                        <div style="display: flex; gap: 1rem;">
-                                            <div class="incident-meta-item">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                    <circle cx="12" cy="12" r="10"></circle>
-                                                    <polyline points="12 6 12 12 16 14"></polyline>
-                                                </svg>
-                                                <span>${timeAgo}</span>
-                                            </div>
-                                            <div class="incident-meta-item">
-                                                <span>${privacyIcon} ${reporterName}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                `;
+                                                        <div class="incident-meta" style="justify-content: space-between;">
+                                                            <div style="display: flex; gap: 1rem;">
+                                                                <div class="incident-meta-item">
+                                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                                        <circle cx="12" cy="12" r="10"></circle>
+                                                                        <polyline points="12 6 12 12 16 14"></polyline>
+                                                                    </svg>
+                                                                    <span>${timeAgo}</span>
+                                                                </div>
+                                                                <div class="incident-meta-item">
+                                                                    <span>${privacyIcon} ${reporterName}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    `;
 
                 container.appendChild(card);
             });
@@ -1206,12 +1203,12 @@
                     const div = document.createElement('div');
                     div.style.position = 'relative';
                     div.innerHTML = `
-                                        <img src="${e.target.result}" style="width: 100%; height: 60px; object-fit: cover; border-radius: 4px;">
-                                        <button type="button" onclick="removePhoto(${index})" 
-                                            style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                                            ×
-                                        </button>
-                                    `;
+                                                            <img src="${e.target.result}" style="width: 100%; height: 60px; object-fit: cover; border-radius: 4px;">
+                                                            <button type="button" onclick="removePhoto(${index})" 
+                                                                style="position: absolute; top: -5px; right: -5px; background: red; color: white; border: none; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                                                                ×
+                                                            </button>
+                                                        `;
                     previewGrid.appendChild(div);
                 };
                 reader.readAsDataURL(file);
@@ -1232,28 +1229,68 @@
             input.files = dt.files;
         }
 
-        function getTimeAgo(date) {
-            const now = new Date();
-            const diffMs = now - date;
-            const diffMins = Math.floor(diffMs / 60000);
-            const diffHours = Math.floor(diffMs / 3600000);
-            const diffDays = Math.floor(diffMs / 86400000);
 
-            if (diffMins < 60) {
-                return `Hace ${diffMins} ${diffMins === 1 ? 'minuto' : 'minutos'}`;
-            } else if (diffHours < 24) {
-                return `Hace ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`;
-            } else {
-                return `Hace ${diffDays} ${diffDays === 1 ? 'día' : 'días'}`;
-            }
-        }
 
-        function focusIncidentOnMap(lat, lng) {
+        function focusIncidentOnMap(lat, lng, incidentData = null) {
             closeIncidentsModal();
+            closeProfileModal(); // Ensure profile modal is closed too
+
             map.setView([lat, lng], 16, {
                 animate: true,
                 duration: 1
             });
+
+            // If we have data, ensure there's a marker
+            if (incidentData) {
+                // Check if marker exists near this location in current layer
+                let found = false;
+                markersLayer.eachLayer(layer => {
+                    const layerLatLng = layer.getLatLng();
+                    if (Math.abs(layerLatLng.lat - lat) < 0.0001 && Math.abs(layerLatLng.lng - lng) < 0.0001) {
+                        const popup = layer.getPopup();
+                        if (popup) {
+                            // Temporarily disable autoPan to avoid conflict with setView
+                            const oldAutoPan = popup.options.autoPan;
+                            popup.options.autoPan = false;
+                            layer.openPopup();
+                            popup.options.autoPan = oldAutoPan; // Restore
+                        } else {
+                            layer.openPopup();
+                        }
+                        found = true;
+                    }
+                });
+
+                if (!found) {
+                    // Create a temporary or permanent marker for this incident
+                    const category = incidentData.category ? incidentData.category.name : (incidentData.category_name || 'Otro');
+                    const config = categoryConfig[category] || categoryConfig['Otro'];
+
+                    const marker = L.marker([lat, lng], {
+                        icon: createCustomIcon(config.color, config.icon)
+                    }).addTo(map);
+
+                    // Bind popup with basic info
+                    const timeAgo = getTimeAgo(new Date(incidentData.created_at));
+                    const popupContent = `
+                                <div style="font-family: 'Inter', sans-serif;">
+                                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                        <div style="width: 24px; height: 24px; border-radius: 50%; background: ${config.color}; display: flex; align-items: center; justify-content: center; font-size: 12px; color: white;">
+                                            ${config.icon}
+                                        </div>
+                                        <h3 style="margin: 0; font-size: 14px; font-weight: 600;">${category}</h3>
+                                    </div>
+                                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #374151;">${incidentData.description || 'Sin descripción'}</p>
+                                    <div style="font-size: 10px; color: #6b7280;">${timeAgo}</div>
+                                </div>
+                            `;
+
+                    marker.bindPopup(popupContent, { autoPan: false }).openPopup();
+
+                    // Cleanup marker when popup closes? Optional, maybe keep it.
+                }
+                showExitMapModeButton('📍 Viendo reporte seleccionado');
+            }
         }
 
         // Image Lightbox Functions
@@ -1277,5 +1314,72 @@
         document.getElementById('image-lightbox').addEventListener('click', function (e) {
             if (e.target === this) closeImageLightbox();
         });
+
+        // Global function to show user incidents
+        window.showUserIncidentsOnMap = function () {
+            // Show loading state if needed
+
+            fetch('/profile/incidents')
+                .then(res => res.json())
+                .then(data => {
+                    // Convert Eloquent models to GeoJSON features
+                    const userFeatures = data.incidents.map(incident => ({
+                        type: "Feature",
+                        geometry: {
+                            type: "Point",
+                            coordinates: [incident.longitude, incident.latitude]
+                        },
+                        properties: {
+                            ...incident,
+                            category: incident.category ? incident.category.name : 'Otro'
+                        }
+                    }));
+
+                    // Update global data source
+                    allIncidents = userFeatures;
+
+                    // Reset filters to show all - Maximize range and time
+                    currentFilters.categories = [...new Set(allIncidents.map(f => f.properties.category))];
+                    currentFilters.hours = 24 * 365 * 10; // 10 years
+                    currentFilters.distanceKm = 10000; // Global range (10000 km)
+
+                    // Update UI inputs to reflect this "View All" state if possible, or just force internal state
+                    const distanceSlider = document.getElementById('distance-range');
+                    if (distanceSlider) distanceSlider.value = 40; // Max visual
+
+                    const timeSelect = document.getElementById('time-filter');
+                    if (timeSelect) timeSelect.value = '24'; // Max visual option, though logic overrides
+
+                    // Update UI
+                    applyFilters();
+
+                    // Alert user with Exit button
+                    showExitMapModeButton('📍 Mostrando tus reportes');
+
+                    // Fit bounds
+                    if (userFeatures.length > 0) {
+                        const bounds = L.latLngBounds(userFeatures.map(f => [f.geometry.coordinates[1], f.geometry.coordinates[0]]));
+                        map.fitBounds(bounds, { padding: [50, 50] });
+                    }
+                })
+                .catch(err => console.error('Error loading user incidents:', err));
+        };
+
+        // Helper to show the floating exit button
+        function showExitMapModeButton(text) {
+            // Remove existing if any
+            const existing = document.getElementById('map-mode-alert');
+            if (existing) existing.remove();
+
+            const alertDiv = document.createElement('div');
+            alertDiv.id = 'map-mode-alert';
+            alertDiv.style.cssText = 'position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; padding: 0.75rem 1.5rem; border-radius: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2000; display: flex; align-items: center; gap: 0.5rem; animation: slideUp 0.3s ease-out;';
+            alertDiv.innerHTML = `
+                            <span>${text}</span>
+                            <button onclick="window.location.reload()" style="background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">✕</button>
+                        `;
+            document.body.appendChild(alertDiv);
+        }
+
     </script>
 @endpush
