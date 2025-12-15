@@ -79,7 +79,37 @@ class IncidentController extends Controller
 
     public function show(Incident $incident)
     {
-        return $incident->load(['category', 'user:id,name']);
+        $incident->load([
+            'category',
+            'user:id,name,profile_photo_path',
+            'comments' => function ($query) {
+                $query->whereNull('parent_id')->orderBy('created_at', 'desc');
+            },
+            'comments.user:id,name,profile_photo_path',
+            'comments.reactions',
+            'comments.replies.user:id,name,profile_photo_path',
+            'comments.replies.reactions',
+            'photos'
+        ]);
+
+        // Aggregate reactions from all comments (flat list)
+        $allReactions = $incident->comments->flatMap(function ($comment) {
+            return $comment->reactions->concat(
+                $comment->replies->flatMap(fn($reply) => $reply->reactions)
+            );
+        });
+
+        $reactionSummary = $allReactions->groupBy('type')->map->count();
+        $totalReactions = $allReactions->count();
+
+        // Add stats to instance
+        $incident->social_stats = [
+            'comments_count' => $incident->comments->count() + $incident->comments->sum(fn($c) => $c->replies->count()),
+            'reactions_count' => $totalReactions,
+            'reaction_types' => $reactionSummary,
+        ];
+
+        return response()->json($incident);
     }
 
     protected function checkAlerts(Incident $incident)

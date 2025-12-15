@@ -47,6 +47,7 @@ class IncidentWebController extends Controller
             $incident->location = DB::raw("ST_SetSRID(ST_MakePoint($lng, $lat), 4326)");
             $incident->location_description = $request->location_description;
             $incident->privacy_level = $request->privacy_level;
+            $incident->allow_comments = $request->has('allow_comments');
             $incident->status = 'reported';
 
             $incident->save();

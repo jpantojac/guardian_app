@@ -75,4 +75,14 @@ class User extends Authenticatable
     {
         return $this->role === 'analyst';
     }
+    public function getProfilePhotoUrlAttribute()
+    {
+        return $this->profile_photo_path
+            ? asset('storage/' . $this->profile_photo_path)
+            : 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=FFFFFF&background=0A0A0A';
+    }
+
+    protected $appends = [
+        'profile_photo_url',
+    ];
 }

@@ -22,8 +22,13 @@ Route::post('/register', [AuthWebController::class, 'register']);
 Route::middleware('auth')->group(function () {
     Route::get('/report', [IncidentWebController::class, 'create'])->name('report.create');
     Route::post('/report', [IncidentWebController::class, 'store'])->name('report.store');
+    Route::post('/api/incidents/{incident}/comments', [\App\Http\Controllers\CommentController::class, 'store'])->name('comments.store');
+    Route::post('/api/comments/{comment}/reactions', [\App\Http\Controllers\CommentController::class, 'toggleReaction'])->name('comments.reaction');
 
     // Profile routes
     Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile/incidents', [\App\Http\Controllers\ProfileController::class, 'incidents'])->name('profile.incidents');
+
+    // Internal API routes (using Web Session)
+    Route::get('/api/incidents/{incident}', [\App\Http\Controllers\Api\IncidentController::class, 'show']);
 });

@@ -607,7 +607,7 @@
         @yield('content')
     </main><!-- Edit Profile Modal -->
     <div id="profile-modal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem 0;">
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem 0;">
         <div class="card"
             style="width: 100%; max-width: 500px; position: relative; animation: slideUp 0.3s ease-out; margin: auto;">
             <button onclick="closeProfileModal()"

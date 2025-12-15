@@ -14,9 +14,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
 
     Route::post('/incidents', [IncidentController::class, 'store']);
-    // Add other protected routes
 });
 
 Route::get('/incidents', [IncidentController::class, 'index']);
-Route::get('/incidents/{incident}', [IncidentController::class, 'show']);
 Route::get('/geojson', [GeoJSONController::class, 'index']);

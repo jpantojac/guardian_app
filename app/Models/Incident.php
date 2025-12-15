@@ -18,11 +18,13 @@ class Incident extends Model
         'localidad_id',
         'privacy_level',
         'status',
+        'allow_comments',
         'verified_at',
     ];
 
     protected $casts = [
         'verified_at' => 'datetime',
+        'allow_comments' => 'boolean',
     ];
 
     // We might need a custom accessor for location if we want it as GeoJSON
@@ -31,6 +33,11 @@ class Incident extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->latest();
     }
 
     public function category()
