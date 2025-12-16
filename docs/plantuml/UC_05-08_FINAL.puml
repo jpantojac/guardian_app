@@ -1,0 +1,24 @@
+@startuml UC_05-08_Reportes_FINAL
+!define DIRECTION top to bottom
+skinparam actorBackgroundColor #ADD1B2
+skinparam usecaseBackgroundColor #FFF3E0
+skinparam usecaseBorderColor #E65100
+skinparam arrowColor #333333
+
+title Casos de Uso: Reporte de Incidentes (UC-05 a UC-08)
+
+actor Ciudadano
+
+rectangle "GuardianApp - Reportes de Incidentes" {
+  usecase UC05 as "UC-05\nReportar Incidente"
+  usecase UC06 as "UC-06\nAdjuntar Evidencia"
+  usecase UC07 as "UC-07\nGeorreferenciar Incidente"
+  usecase UC08 as "UC-08\nGuardar Borrador"
+}
+
+Ciudadano --> UC05
+Ciudadano --> UC06
+Ciudadano --> UC07
+Ciudadano --> UC08
+
+@enduml

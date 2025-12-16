@@ -1,0 +1,29 @@
+@startuml UC_19-23_Administracion_FINAL
+!define DIRECTION top to bottom
+skinparam actorBackgroundColor #ADD1B2
+skinparam usecaseBackgroundColor #FCE4EC
+skinparam usecaseBorderColor #C2185B
+skinparam arrowColor #333333
+
+title Casos de Uso: Administración del Sistema (UC-19 a UC-23)
+
+actor Administrador
+actor "Oficial Validador"
+
+rectangle "GuardianApp - Administración del Sistema" {
+  usecase UC19 as "UC-19\nValidar Reportes"
+  usecase UC20 as "UC-20\nGestionar Usuarios"
+  usecase UC21 as "UC-21\nConfigurar Sistema"
+  usecase UC22 as "UC-22\nModerar Contenido"
+  usecase UC23 as "UC-23\nGenerar Reportes Admin"
+}
+
+Administrador --> UC19
+Administrador --> UC20
+Administrador --> UC21
+Administrador --> UC22
+Administrador --> UC23
+"Oficial Validador" --> UC19
+"Oficial Validador" --> UC22
+
+@enduml

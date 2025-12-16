@@ -1,0 +1,30 @@
+@startuml UC_09-13_Visualizacion_FINAL
+!define DIRECTION top to bottom
+skinparam actorBackgroundColor #ADD1B2
+skinparam usecaseBackgroundColor #E0F2F1
+skinparam usecaseBorderColor #00695C
+skinparam arrowColor #333333
+
+title Casos de Uso: Visualización GIS (UC-09 a UC-13)
+
+actor Ciudadano
+actor "Oficial de Seguridad"
+
+rectangle "GuardianApp - Visualización GIS" {
+  usecase UC09 as "UC-09\nVisualizar Mapa"
+  usecase UC10 as "UC-10\nVer Incidentes"
+  usecase UC11 as "UC-11\nFiltrar Incidentes"
+  usecase UC12 as "UC-12\nBuscar Incidentes"
+  usecase UC13 as "UC-13\nVer Heatmap"
+}
+
+Ciudadano --> UC09
+Ciudadano --> UC10
+Ciudadano --> UC11
+Ciudadano --> UC12
+Ciudadano --> UC13
+"Oficial de Seguridad" --> UC09
+"Oficial de Seguridad" --> UC10
+"Oficial de Seguridad" --> UC11
+
+@enduml

@@ -1,0 +1,24 @@
+@startuml UC_01-04_Gestion_Usuarios_FINAL
+!define DIRECTION top to bottom
+skinparam actorBackgroundColor #ADD1B2
+skinparam usecaseBackgroundColor #E8F5E9
+skinparam usecaseBorderColor #2E7D32
+skinparam arrowColor #333333
+
+title Casos de Uso: Gestión de Usuarios (UC-01 a UC-04)
+
+actor Ciudadano
+
+rectangle "GuardianApp - Gestión de Usuarios" {
+  usecase UC01 as "UC-01\nRegistrar Nueva Cuenta"
+  usecase UC02 as "UC-02\nIniciar Sesión"
+  usecase UC03 as "UC-03\nGestionar Perfil"
+  usecase UC04 as "UC-04\nCompletar Datos"
+}
+
+Ciudadano --> UC01
+Ciudadano --> UC02
+Ciudadano --> UC03
+Ciudadano --> UC04
+
+@enduml

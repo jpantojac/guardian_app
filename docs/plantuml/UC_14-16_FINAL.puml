@@ -1,0 +1,27 @@
+@startuml UC_14-16_Analisis_FINAL
+!define DIRECTION top to bottom
+skinparam actorBackgroundColor #ADD1B2
+skinparam usecaseBackgroundColor #FFFDE7
+skinparam usecaseBorderColor #F57F17
+skinparam arrowColor #333333
+
+title Casos de Uso: Análisis y Reportería (UC-14 a UC-16)
+
+actor Ciudadano
+actor "Oficial de Seguridad"
+actor Administrador
+
+rectangle "GuardianApp - Análisis y Reportería" {
+  usecase UC14 as "UC-14\nConsultar Estadísticas"
+  usecase UC15 as "UC-15\nGenerar Reportes"
+  usecase UC16 as "UC-16\nExportar Datos"
+}
+
+Ciudadano --> UC14
+"Oficial de Seguridad" --> UC14
+"Oficial de Seguridad" --> UC15
+Administrador --> UC14
+Administrador --> UC15
+Administrador --> UC16
+
+@enduml
