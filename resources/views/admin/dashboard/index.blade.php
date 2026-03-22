@@ -9,9 +9,8 @@
     
     <form method="GET" action="{{ route('admin.dashboard') }}" class="flex flex-wrap items-end gap-3 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
         <div>
-        <div>
             <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Tipo de Delito</label>
-            <div class="min-w-[250px]">
+            <div class="min-w-[250px] max-w-sm">
                 <select id="category-select" name="categories[]" multiple autocomplete="off" class="block w-full text-sm">
                     @foreach($categories as $cat)
                         <option value="{{ $cat->id }}" {{ in_array($cat->id, $selectedCategories) ? 'selected' : '' }}>{{ $cat->name }}</option>
