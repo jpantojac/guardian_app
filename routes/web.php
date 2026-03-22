@@ -32,3 +32,14 @@ Route::middleware('auth')->group(function () {
     // Internal API routes (using Web Session)
     Route::get('/api/incidents/{incident}', [\App\Http\Controllers\Api\IncidentController::class, 'show']);
 });
+
+// Admin routes
+Route::middleware(['auth', 'role:admin,moderator'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    
+    // User Management (Admin only)
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+        Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+    });
+});

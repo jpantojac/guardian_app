@@ -69,6 +69,17 @@
                     </div>
                 </div>
 
+                <!-- Heatmap Toggle (Citizen Prevention) -->
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff5f5; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid #fca5a5;">
+                        <span style="font-size: 0.875rem; font-weight: 600; color: #dc2626; display: flex; align-items: center; gap: 0.25rem;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"></path></svg>
+                            Mapa de Calor
+                        </span>
+                        <input type="checkbox" id="heatmap-toggle" style="width: 16px; height: 16px; cursor: pointer; accent-color: #dc2626;">
+                    </label>
+                </div>
+
                 <!-- Category Filter -->
                 <div style="margin-bottom: 1rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
@@ -847,11 +858,14 @@
 @endpush
 
 @push('scripts')
+    <!-- Leaflet.heat plugin -->
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     <script>
         let map;
         let markersLayer;
         let userLocationMarker;
         let radiusCircle;
+        let heatLayer = null;
         let allIncidents = [];
         let userLocation = null;
         let currentFilters = {
@@ -863,7 +877,9 @@
         // Pagination vars
         let currentIncidentComments = [];
         let commentsShown = 5;
-        // Report modal map     let reportMap;     let reportMarker;
+        // Report modal map
+        let reportMap = null;
+        let reportMarker = null;
 
         document.addEventListener('DOMContentLoaded', function () {
             map = L.map('map', {
@@ -970,6 +986,13 @@
                     } else {
                         currentFilters.categories = [];
                     }
+                    applyFilters();
+                });
+            }
+
+            const heatmapToggle = document.getElementById('heatmap-toggle');
+            if (heatmapToggle) {
+                heatmapToggle.addEventListener('change', function() {
                     applyFilters();
                 });
             }
@@ -1194,19 +1217,38 @@
                 return timeMatch && categoryMatch && distanceMatch;
             });
 
-            filteredIncidents.forEach(feature => {
-                const coords = feature.geometry.coordinates;
-                const props = feature.properties;
-                const category = props.category || 'Otro';
+            if (heatLayer) {
+                map.removeLayer(heatLayer);
+                heatLayer = null;
+            }
 
-                const marker = L.marker([coords[1], coords[0]], {
-                    icon: createCustomIcon(category)
+            const heatmapToggle = document.getElementById('heatmap-toggle');
+            const showHeatmap = heatmapToggle && heatmapToggle.checked;
+
+            if (showHeatmap) {
+                const heatPoints = filteredIncidents.map(f => [f.geometry.coordinates[1], f.geometry.coordinates[0], 0.6]);
+                heatLayer = L.heatLayer(heatPoints, {
+                    radius: 20,
+                    blur: 15,
+                    maxZoom: 15,
+                    max: 1.0,
+                    gradient: {0.4: 'blue', 0.6: 'cyan', 0.7: 'lime', 0.8: 'yellow', 1.0: 'red'}
+                }).addTo(map);
+            } else {
+                filteredIncidents.forEach(feature => {
+                    const coords = feature.geometry.coordinates;
+                    const props = feature.properties;
+                    const category = props.category || 'Otro';
+
+                    const marker = L.marker([coords[1], coords[0]], {
+                        icon: createCustomIcon(category)
+                    });
+
+                    marker.bindPopup(getIncidentPopupHtml(props));
+
+                    markersLayer.addLayer(marker);
                 });
-
-                marker.bindPopup(getIncidentPopupHtml(props));
-
-                markersLayer.addLayer(marker);
-            });
+            }
 
             document.getElementById('stats-total').innerText = filteredIncidents.length;
         }

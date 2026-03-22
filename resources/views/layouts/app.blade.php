@@ -548,8 +548,12 @@
                         d="M 16.019531 10.816406 C 16.601562 11.148438 17.109375 11.625 17.347656 12.261719 C 17.523438 13.035156 17.453125 13.78125 17.023438 14.453125 C 16.660156 15.007812 16.195312 15.359375 15.550781 15.546875 C 14.6875 15.652344 13.882812 15.628906 13.160156 15.089844 C 12.636719 14.640625 12.308594 14.054688 12.199219 13.378906 C 12.152344 12.570312 12.417969 11.902344 12.9375 11.277344 C 13.789062 10.480469 14.972656 10.320312 16.019531 10.816406 Z M 16.019531 10.816406 " />
                 </g>
             </svg><span>GuardianApp</span></a><!-- Desktop Navigation -->
-        <div class="nav-links desktop-nav"><a href="/">Mapa</a>@auth <span
-                class="user-name">{{ auth()->user()->name }}</span>
+        <div class="nav-links desktop-nav"><a href="/">Mapa</a>
+            @auth
+            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'moderator')
+                <a href="{{ route('admin.dashboard') }}" style="color: var(--primary); font-weight: 600;">Panel Admin</a>
+            @endif
+            <span class="user-name">{{ auth()->user()->name }}</span>
             <form action="{{ route('logout') }}" method="POST" style="display: inline;">@csrf <button type="submit"
         class="btn btn-logout">Salir</button></form>@else <button onclick="openLoginModal()"
                     class="btn-login">Iniciar Sesión</button>@endauth
@@ -580,8 +584,17 @@
                         <div class="dropdown-email">{{ auth()->user()->email }}</div>
                     </div>
                 </div>
-                <div class="dropdown-divider"></div><button onclick="openProfileModal()" class="dropdown-item"><svg
-                        width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <div class="dropdown-divider"></div>
+                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'moderator')
+                <a href="{{ route('admin.dashboard') }}" class="dropdown-item" style="text-decoration: none; color: inherit;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                    Panel Admin
+                </a>
+                @endif
+                <button onclick="openProfileModal()" class="dropdown-item"><svg
+                        width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                     </svg>Editar Perfil </button>

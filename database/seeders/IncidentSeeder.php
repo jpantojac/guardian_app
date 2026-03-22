@@ -23,26 +23,19 @@ class IncidentSeeder extends Seeder
         $minLng = -74.25;
         $maxLng = -73.95;
 
-        // Generate incidents with different timestamps for testing filters
-        for ($i = 0; $i < 150; $i++) {
+        // Generate 1000 incidents over the last 2 years for historical data testing
+        for ($i = 0; $i < 1000; $i++) {
             $lat = $minLat + mt_rand() / mt_getrandmax() * ($maxLat - $minLat);
             $lng = $minLng + mt_rand() / mt_getrandmax() * ($maxLng - $minLng);
 
             $category = $categories->random();
 
-            // Distribute incidents across different time periods for filter testing
-            if ($i < 30) {
-                // Last hour
-                $date = now()->subMinutes(rand(1, 60));
-            } elseif ($i < 70) {
-                // Last 6 hours
-                $date = now()->subHours(rand(1, 6));
-            } elseif ($i < 120) {
-                // Last 24 hours
-                $date = now()->subHours(rand(6, 24));
+            if ($i < 200) {
+                // Last 30 days
+                $date = now()->subDays(rand(0, 30))->subMinutes(rand(0, 1440));
             } else {
-                // Older than 24 hours
-                $date = now()->subDays(rand(2, 30));
+                // Older than 30 days, up to 2 years (730 days)
+                $date = now()->subDays(rand(31, 730))->subMinutes(rand(0, 1440));
             }
 
             Incident::create([
