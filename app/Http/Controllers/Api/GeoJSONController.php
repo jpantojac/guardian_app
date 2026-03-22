@@ -22,6 +22,26 @@ class GeoJSONController extends Controller
         if ($request->has('days')) {
             $query->where('created_at', '>=', now()->subDays($request->days));
         }
+        
+        // Admin filters support
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', $request->month);
+        }
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+        if ($request->filled('categories') && is_array($request->categories)) {
+            $query->whereIn('category_id', $request->categories);
+        }
 
         // Build GeoJSON query
         // We apply ST_SnapToGrid for simple privacy/clustering or random noise

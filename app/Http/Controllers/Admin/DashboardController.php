@@ -17,6 +17,12 @@ class DashboardController extends Controller
         $month = $request->input('month');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $categoryId = $request->input('category_id'); // Keep backward compat temporarily if needed
+        $selectedCategories = $request->input('categories', []);
+        
+        if ($categoryId && empty($selectedCategories)) {
+            $selectedCategories = [$categoryId];
+        }
 
         $query = Incident::query();
 
@@ -32,19 +38,23 @@ class DashboardController extends Controller
         if ($endDate) {
             $query->whereDate('created_at', '<=', $endDate);
         }
+        if (!empty($selectedCategories)) {
+            $query->whereIn('category_id', $selectedCategories);
+        }
 
         // Stats
         $totalIncidents = (clone $query)->count();
-        $incidentsToday = Incident::whereDate('created_at', Carbon::today())->count();
+        $incidentsToday = (clone $query)->whereDate('created_at', Carbon::today())->count();
         $totalUsers = User::count();
         $activeUsers = User::where('is_active', true)->count();
         
         // Incidents by category 
-        $incidentsByCategory = \App\Models\Category::withCount(['incidents' => function($q) use ($year, $month, $startDate, $endDate) {
+        $incidentsByCategory = \App\Models\Category::withCount(['incidents' => function($q) use ($year, $month, $startDate, $endDate, $selectedCategories) {
             if ($year) $q->whereYear('created_at', $year);
             if ($month) $q->whereMonth('created_at', $month);
             if ($startDate) $q->whereDate('created_at', '>=', $startDate);
             if ($endDate) $q->whereDate('created_at', '<=', $endDate);
+            if (!empty($selectedCategories)) $q->whereIn('category_id', $selectedCategories);
         }])
         ->get()
         ->map(function ($category) {
@@ -90,6 +100,8 @@ class DashboardController extends Controller
             ->pluck('year')
             ->map(function($val) { return floor($val); }); // clean pgsql double
 
+        $categories = \App\Models\Category::all();
+
         return view('admin.dashboard.index', compact(
             'totalIncidents', 
             'incidentsToday', 
@@ -98,10 +110,12 @@ class DashboardController extends Controller
             'incidentsByCategory',
             'incidentsTrend',
             'availableYears',
+            'categories',
             'year',
             'month',
             'startDate',
-            'endDate'
+            'endDate',
+            'selectedCategories'
         ));
     }
 }

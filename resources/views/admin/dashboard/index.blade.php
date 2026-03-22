@@ -9,6 +9,17 @@
     
     <form method="GET" action="{{ route('admin.dashboard') }}" class="flex flex-wrap items-end gap-3 bg-white p-3 rounded-lg shadow-sm border border-gray-200">
         <div>
+        <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Tipo de Delito</label>
+            <div class="min-w-[250px]">
+                <select id="category-select" name="categories[]" multiple autocomplete="off" class="block w-full text-sm">
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}" {{ in_array($cat->id, $selectedCategories) ? 'selected' : '' }}>{{ $cat->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div>
             <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Año</label>
             <select name="year" class="block w-full rounded-md border-gray-300 shadow-sm px-3 py-1.5 border text-sm">
                 <option value="">Todos</option>
@@ -40,7 +51,7 @@
         </div>
         <div>
             <button type="submit" class="bg-indigo-600 text-white px-4 py-1.5 rounded-md hover:bg-indigo-700 text-sm font-medium transition-colors">Filtrar</button>
-            @if($year || $month || $startDate || $endDate)
+            @if($year || $month || $startDate || $endDate || count($selectedCategories) > 0)
                 <a href="{{ route('admin.dashboard') }}" class="ml-2 text-sm text-gray-500 hover:text-gray-700">Limpiar</a>
             @endif
         </div>
@@ -90,13 +101,45 @@
     <div id="adminMap" style="height: 500px; width: 100%; border-radius: 0.5rem; z-index: 1;"></div>
 </div>
 
+@push('styles')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.css" rel="stylesheet">
+<style>
+    /* Tailwind adjustments for Tom Select */
+    .ts-control {
+        border-color: #d1d5db;
+        border-radius: 0.375rem;
+        padding: 0.375rem 0.75rem;
+        min-height: 38px;
+    }
+    .ts-wrapper.multi .ts-control > div {
+        background: #4f46e5;
+        color: white;
+        border-radius: 0.25rem;
+        padding: 2px 6px;
+        border: none;
+    }
+    .ts-wrapper.multi .ts-control > div.active {
+        background: #4338ca;
+        color: white;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <!-- Leaflet.heat plugin -->
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // --- 0. Init Tom Select ---
+        new TomSelect('#category-select', {
+            plugins: ['remove_button'],
+            placeholder: 'Seleccione delitos...',
+            maxOptions: null
+        });
+
         // --- 1. Line Chart (Temporal) ---
         const trendData = @json($incidentsTrend);
         const labels = trendData.map(d => d.date);
@@ -155,8 +198,20 @@
             attribution: '&copy; OpenStreetMap &copy; CARTO'
         }).addTo(map);
 
+        // Build URL for geojson
+        const mapUrl = new URL(window.location.origin + '/api/geojson');
+        @if($year) mapUrl.searchParams.append('year', '{{ $year }}'); @endif
+        @if($month) mapUrl.searchParams.append('month', '{{ $month }}'); @endif
+        @if($startDate) mapUrl.searchParams.append('start_date', '{{ $startDate }}'); @endif
+        @if($endDate) mapUrl.searchParams.append('end_date', '{{ $endDate }}'); @endif
+        @if(!empty($selectedCategories))
+            @foreach($selectedCategories as $cat)
+                mapUrl.searchParams.append('categories[]', '{{ $cat }}');
+            @endforeach
+        @endif
+
         // Fetch data and Render Heatmap
-        fetch('/api/geojson')
+        fetch(mapUrl)
             .then(res => res.json())
             .then(data => {
                 const heatPoints = data.features.map(f => {
