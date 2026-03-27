@@ -63,8 +63,8 @@
 
                 <div style="margin-bottom: 1.5rem; font-size: 0.875rem;">
                     <label style="display: flex; align-items: start; gap: 0.5rem; font-weight: 400;">
-                        <input type="checkbox" required style="width: auto; margin-top: 0.25rem;">
-                        <span>Acepto la política de privacidad y el tratamiento de mis datos.</span>
+                        <input type="checkbox" name="terms" required style="width: auto; margin-top: 0.25rem;">
+                        <span>Declaro que he leído y acepto los <a href="{{ route('legal.terminos') }}" target="_blank" style="color: var(--primary); text-decoration: underline;">Términos de Uso</a> y autorizo el manejo de mi información bajo la <a href="{{ route('legal.privacidad') }}" target="_blank" style="color: var(--primary); text-decoration: underline;">Política de Tratamiento de Datos Personales (Ley 1581)</a>.</span>
                     </label>
                 </div>
 

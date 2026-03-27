@@ -43,3 +43,7 @@ Route::middleware(['auth', 'role:admin,moderator'])->prefix('admin')->name('admi
         Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
     });
 });
+
+// Legal routes (Ley 1581 and T&C)
+Route::view('/privacidad', 'legal.privacidad')->name('legal.privacidad');
+Route::view('/terminos', 'legal.terminos')->name('legal.terminos');

@@ -618,7 +618,19 @@
                 {{ session('error') }}
         </div>@endif
         @yield('content')
-    </main><!-- Edit Profile Modal -->
+    </main>
+    
+    <!-- Global Legal Footer -->
+    <footer style="background-color: var(--surface); border-top: 1px solid var(--border-color); padding: 1.5rem 2rem; text-align: center; margin-top: 3rem;">
+        <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">
+            <a href="{{ route('legal.terminos') }}" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-weight: 500;">Términos de Uso</a> | 
+            <a href="{{ route('legal.privacidad') }}" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-weight: 500;">Política de Privacidad (Ley 1581)</a>
+            <br>
+            <span style="display: inline-block; margin-top: 0.75rem;">&copy; {{ date('Y') }} GuardianApp - WebGIS Participativo</span>
+        </p>
+    </footer>
+
+    <!-- Edit Profile Modal -->
     <div id="profile-modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem 0;">
         <div class="card"
