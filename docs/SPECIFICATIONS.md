@@ -330,16 +330,35 @@ El panel administrativo cuenta con las siguientes secciones operacionales implem
 - Por año, mes, rango personalizado de fechas.
 - Por una o múltiples categorías simultáneas (selección múltiple).
 
-### 5.5 API REST GeoJSON
+### 5.5 Capa de Servicios REST (API)
 
-El sistema expone dos *endpoints* REST de solo lectura que proveen datos geoespaciales en formato GeoJSON estándar (RFC 7946), consumidos por la capa Leaflet del frontend:
+El sistema DEBE exponer una API REST que permita el consumo de datos por parte del *frontend* basado en Leaflet y, potencialmente, por aplicaciones externas o móviles. Todos los *endpoints* DEBEN retornar respuestas con formato JSON. Los *endpoints* que entreguen información espacial DEBEN adherirse al estándar GeoJSON (RFC 7946).
 
-| Endpoint | Método | Descripción | Filtros disponibles |
+#### 5.5.1 Endpoints de Autenticación
+
+| Endpoint | Método | Autenticación | Descripción |
 |---|---|---|---|
-| `/api/geojson` | GET | `FeatureCollection` de incidentes con propiedades: categoría, color, estado, localidad, evidencias fotográficas | `days`, `year`, `month`, `start_date`, `end_date`, `categories[]` |
-| `/api/localidades-geojson` | GET | `FeatureCollection` de los polígonos MultiPolygon de las 20 localidades de Bogotá (geometría oficial IDECA) | — |
+| `/api/register` | POST | Pública | Registro de nuevo usuario. Requiere `name`, `email`, `password`, `password_confirmation`. |
+| `/api/login` | POST | Pública | Autenticación de credenciales. Retorna token Sanctum. |
+| `/api/logout` | POST | Bearer Token | Revocación del token de sesión activo. |
+| `/api/user` | GET | Bearer Token | Recuperación del perfil del usuario autenticado. |
 
-Ambos *endpoints* utilizan la función `ST_AsGeoJSON()` de PostGIS para serializar la geometría directamente desde la base de datos, garantizando precisión y eficiencia.
+#### 5.5.2 Endpoints de Incidentes
+
+| Endpoint | Método | Autenticación | Descripción |
+|---|---|---|---|
+| `/api/incidents` | GET | Pública | Listado paginado de incidentes. Soporta filtros: `days`, `year`, `month`, `start_date`, `end_date`, `category_id`. |
+| `/api/incidents` | POST | Bearer Token | Creación de un nuevo incidente. Requiere coordenadas geográficas, `category_id`, `description` y nivel de privacidad. |
+| `/api/incidents/{id}` | GET | Sesión Web | Recuperación del detalle de un incidente específico, incluyendo fotografías y comentarios asociados. |
+
+#### 5.5.3 Endpoints Geoespaciales (GeoJSON)
+
+Estos *endpoints* DEBEN retornar objetos `FeatureCollection` conforme al estándar GeoJSON (RFC 7946). La serialización de la geometría DEBE realizarse directamente desde el motor PostGIS para garantizar precisión topológica.
+
+| Endpoint | Método | Autenticación | Descripción | Filtros |
+|---|---|---|---|---|
+| `/api/geojson` | GET | Pública | `FeatureCollection` de incidentes. Cada `Feature` DEBE incluir propiedades: `category`, `color`, `status`, `privacy_level`, `localidad`, `reporter_name`, `photos[]`, `created_at`. | `days`, `year`, `month`, `start_date`, `end_date`, `categories[]` |
+| `/api/localidades-geojson` | GET | Pública | `FeatureCollection` de los polígonos `MultiPolygon` correspondientes a las 20 localidades oficiales de Bogotá (geometría fuente: IDECA). Cada `Feature` DEBE incluir propiedades: `id`, `nombre`. | — |
 
 ### 5.6 Paleta de Colores y Estilo Visual
 
@@ -403,23 +422,24 @@ guardianapp/
 | **Mapas** | Leaflet.js | 1.9.4 | Librería de mapas open-source |
 | **Plugins Leaflet** | Leaflet.heat + Leaflet.markercluster | — | Heatmap y agrupación de marcadores |
 
-### 6.3 Capa de Datos Geoespaciales (PostGIS / IDECA)
+### 6.3 Capa de Datos Geoespaciales
 
-El sistema implementa una capa de datos geoespacial completa sobre PostgreSQL + PostGIS para la gestión de información territorial de Bogotá:
+El sistema DEBE incorporar una capa de datos geoespacial sustentada en PostgreSQL con la extensión PostGIS, orientada a la gestión de geometrías y consultas espaciales sobre el territorio de Bogotá.
 
-**Fuente de datos:** Infraestructura de Datos Espaciales para el Distrito Capital (IDECA), Alcaldía Mayor de Bogotá. Shapefiles de límites oficiales de las 20 localidades en sistema de referencia WGS84 (SRID: 4326).
+**Requisito de Fuente de Datos Oficial:**  
+Las geometrías de los límites administrativos de las 20 localidades de Bogotá DEBEN derivarse de la fuente oficial del Distrito Capital: la Infraestructura de Datos Espaciales para el Distrito Capital (IDECA), Alcaldía Mayor de Bogotá. Los datos DEBEN referenciarse en el sistema de coordenadas geográfico WGS84 (EPSG: 4326).
 
-**Proceso de carga:**
-1. Conversión de Shapefile → volcado SQL con herramientas PostGIS (`shp2pgsql`).
-2. Almacenamiento en `database/data/localidades.sql` como fuente de verdad versionada en el repositorio.
-3. Inyección automática al ejecutar `php artisan migrate:fresh --seed` mediante `LocalidadSeeder`.
+**Requisito de Almacenamiento y Portabilidad:**  
+Las geometrías de localidades DEBEN almacenarse en el repositorio del proyecto como un volcado SQL (`database/data/localidades.sql`) para garantizar la reproduci bilidad del entorno en cualquier instalación nueva. La carga de estos datos DEBERÁ ejecutarse de forma automática como parte del proceso estándar de inicialización de la base de datos (`php artisan migrate:fresh --seed`), sin requerir intervención manual del administrador.
 
-**Asignación automática de localidad:**
-Cada incidente creado en el sistema invoca el método `Incident::assignLocalidad()`, que ejecuta la consulta espacial `ST_Intersects(location, geom)` para vincular automáticamente el punto GPS del reporte con el polígono de la localidad correspondiente.
+**Requisito de Asignación Espacial Automática:**  
+Cada incidente registrado en el sistema DEBE ser vinculado automáticamente a la localidad de Bogotá que contenga su punto GPS. Dicha vinculación DEBE realizarse mediante la función espacial `ST_Intersects(location, geom)` de PostGIS, comparando la geometría de tipo `Point` del incidente contra los polígonos `MultiPolygon` de las localidades. Este proceso DEBE ejecutarse de forma transparente durante la creación del reporte, sin requerir acción alguna por parte del usuario.
 
-**Índices espaciales:** Tablas `localidades` e `incidents` cuentan con índices `GIST` para garantizar rendimiento en consultas geoespaciales a escala.
+**Requisito de Rendimiento Espacial:**  
+Las tablas que almacenen geometrías espaciales (`localidades`, `incidents`) DEBEN contar con índices del tipo `GIST` para garantizar tiempos de respuesta aceptables en consultas geoespaciales sobre grandes volúmenes de datos.
 
-**Comando de demostración:** El comando `php artisan guardian:seed-today --count=N` permite la inyección de N incidentes del día en curso con distribución orgánica (80% en hotspots estratégicos, 20% como ruido de fondo), sin afectar el historial existente. Diseñado para uso en presentaciones y demostraciones en vivo.
+**Requisito de Modo Demostración:**  
+El sistema DEBERÁ proveer un mecanismo de inyección de datos sintéticos para entornos de evaluación y presentación. Dicho mecanismo DEBE tomar la forma de un comando de consola (`php artisan guardian:seed-today --count=N`) que inyecte N incidentes con fecha del día en curso, distribuidos de forma orgánica sobre el territorio (80% en zonas de alta densidad histórica, 20% como ruido de fondo), sin modificar el historial de reportes existente.
 
 ---
 
