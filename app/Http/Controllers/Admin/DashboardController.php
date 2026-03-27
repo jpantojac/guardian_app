@@ -57,6 +57,10 @@ class DashboardController extends Controller
             if (!empty($selectedCategories)) $q->whereIn('category_id', $selectedCategories);
         }])
         ->get()
+        ->filter(function ($category) {
+            return $category->incidents_count > 0;
+        })
+        ->values()
         ->map(function ($category) {
             return [
                 'name' => $category->name,
@@ -68,8 +72,8 @@ class DashboardController extends Controller
         // Incidents Trend Chart
         $trendQuery = clone $query;
         
-        if ($year && !$month && !$startDate && !$endDate) {
-            // Group by month
+        if (!$month && !$startDate && !$endDate) {
+            // Group by month (shows evolution across the selected year, or all history if year is "Todos")
             $incidentsTrend = $trendQuery->select(
                 DB::raw("TO_CHAR(created_at, 'YYYY-MM') as date"), 
                 DB::raw('count(*) as count')
@@ -78,12 +82,7 @@ class DashboardController extends Controller
             ->orderBy('date')
             ->get();
         } else {
-            // Group by day
-            if (!$year && !$month && !$startDate && !$endDate) {
-                // Default: last 30 days
-                $trendQuery->where('created_at', '>=', Carbon::now()->subDays(30));
-            }
-            
+            // Group by day for specific month or specific start/end dates
             $incidentsTrend = $trendQuery->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('count(*) as count')
@@ -92,6 +91,37 @@ class DashboardController extends Controller
             ->orderBy('date')
             ->get();
         }
+
+        // Crime Clock (Incidents by Hour)
+        $hourlyCounts = (clone $query)->select(
+            DB::raw('CAST(EXTRACT(HOUR FROM created_at) AS INTEGER) as hour'),
+            DB::raw('count(*) as count')
+        )
+        ->groupBy('hour')
+        ->pluck('count', 'hour');
+
+        $incidentsByHour = collect();
+        for ($i = 0; $i < 24; $i++) {
+            $incidentsByHour->push([
+                'hour' => str_pad($i, 2, '0', STR_PAD_LEFT) . ':00',
+                'count' => $hourlyCounts->get($i, 0)
+            ]);
+        }
+
+        // Top Localidades
+        $topLocalidades = (clone $query)->select('localidad_id', DB::raw('count(*) as count'))
+            ->whereNotNull('localidad_id')
+            ->groupBy('localidad_id')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->with('localidad:id,nombre')
+            ->get()
+            ->map(function ($incident) {
+                return [
+                    'name' => $incident->localidad ? $incident->localidad->nombre : 'Desconocida',
+                    'count' => $incident->count
+                ];
+            });
 
         // Available years for filter
         $availableYears = Incident::selectRaw('EXTRACT(YEAR FROM created_at) as year')
@@ -109,6 +139,8 @@ class DashboardController extends Controller
             'activeUsers',
             'incidentsByCategory',
             'incidentsTrend',
+            'incidentsByHour',
+            'topLocalidades',
             'availableYears',
             'categories',
             'year',

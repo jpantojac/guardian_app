@@ -92,6 +92,21 @@
     </div>
 </div>
 
+<!-- New Operational Charts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Crime Clock Chart (Radar/Bar) -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Reloj del Delito (Distribución Horaria)</h3>
+        <canvas id="clockChart" height="200"></canvas>
+    </div>
+    
+    <!-- Top Localities Chart (Horizontal Bar) -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Top 5 Localidades Afectadas</h3>
+        <canvas id="localityChart" height="200"></canvas>
+    </div>
+</div>
+
 <!-- WebMap -->
 <div class="bg-white rounded-lg shadow p-6 mb-6">
     <div class="flex justify-between items-center mb-4">
@@ -102,6 +117,9 @@
 
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.css" rel="stylesheet">
+<!-- Leaflet MarkerCluster CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" crossorigin="anonymous">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" crossorigin="anonymous">
 <style>
     /* Tailwind adjustments for Tom Select */
     .ts-control {
@@ -128,6 +146,8 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <!-- Leaflet.heat plugin -->
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<!-- Leaflet.markercluster plugin -->
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
 <script>
@@ -189,13 +209,93 @@
             }
         });
 
-        // --- 3. Leaflet Heatmap ---
+        // --- 2a. Reloj del Delito (Hourly Clock) ---
+        const clockData = @json($incidentsByHour);
+        new Chart(document.getElementById('clockChart'), {
+            type: 'bar',
+            data: {
+                labels: clockData.map(d => d.hour),
+                datasets: [{
+                    label: 'Incidentes',
+                    data: clockData.map(d => d.count),
+                    backgroundColor: 'rgba(239, 68, 68, 0.7)', // Red base
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    x: { grid: { display: false } },
+                    y: { beginAtZero: true } 
+                }
+            }
+        });
+
+        // --- 2b. Top Localidades (Horizontal Bar) ---
+        const locData = @json($topLocalidades);
+        new Chart(document.getElementById('localityChart'), {
+            type: 'bar',
+            data: {
+                labels: locData.map(d => d.name),
+                datasets: [{
+                    label: 'Incidentes',
+                    data: locData.map(d => d.count),
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)', // Blue base
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y', // Horizontal
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    x: { beginAtZero: true },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // --- 3. Leaflet Heatmap & MarkerCluster ---
         // Initialize Map
         const map = L.map('adminMap').setView([4.6097, -74.0817], 12); // Bogotá coordinates
         
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        // Base Layers
+        const lightMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap &copy; CARTO'
-        }).addTo(map);
+        });
+        const darkMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO'
+        });
+
+        // Add default base layer
+        lightMap.addTo(map);
+
+        // Overlay Groups
+        const heatLayerGroup = L.layerGroup();
+        const localidadesLayerGroup = L.layerGroup();
+        const markerClusterGroup = L.markerClusterGroup({
+            chunkedLoading: true,
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true
+        });
+
+        // Initially add the marker cluster to the map (user can toggle)
+        map.addLayer(markerClusterGroup);
+
+        // Layer Control
+        const baseMaps = {
+            "Mapa Claro": lightMap,
+            "Mapa Oscuro": darkMap
+        };
+        const overlayMaps = {
+            "Agrupación de Incidentes": markerClusterGroup,
+            "Mapa de Calor": heatLayerGroup,
+            "Límites Locales": localidadesLayerGroup
+        };
+
+        L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(map);
 
         // Build URL for geojson
         const mapUrl = new URL(window.location.origin + '/api/geojson');
@@ -209,29 +309,88 @@
             @endforeach
         @endif
 
-        // Fetch data and Render Heatmap
+        // Fetch data and Render Layers
         fetch(mapUrl)
             .then(res => res.json())
             .then(data => {
-                const heatPoints = data.features.map(f => {
-                    // Extract lat, lng (GeoJSON format is Longitude, Latitude) // ST_AsGeoJSON returns Point(lon lat)
+                const heatPoints = [];
+
+                data.features.forEach(f => {
                     const coords = f.geometry.coordinates;
-                    return [coords[1], coords[0], 0.6]; // lat, lng, intensity
+                    const lat = coords[1];
+                    const lng = coords[0];
+                    const props = f.properties;
+
+                    // 1. Data for Heatmap
+                    heatPoints.push([lat, lng, 0.6]);
+
+                    // 2. Data for MarkerCluster
+                    const popupContent = `
+                        <div class="px-1 py-1 min-w-[200px]">
+                            <h4 class="font-bold text-gray-800 border-b pb-1 mb-2 text-sm" style="border-bottom-color: ${props.color}">
+                                <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:${props.color}; margin-right:5px;"></span>
+                                ${props.category}
+                            </h4>
+                            <p class="text-xs text-gray-600 mb-1"><strong>Fecha:</strong> ${new Date(props.created_at).toLocaleString('es-CO')}</p>
+                            <p class="text-sm text-gray-800 mt-2 mb-2 line-clamp-3">${props.description || 'Sin descripción'}</p>
+                            <div class="mt-2 text-right">
+                                <span class="px-2 py-0.5 mt-1 text-[10px] font-semibold rounded bg-indigo-100 text-indigo-700 uppercase border border-indigo-200">
+                                    ${props.status}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+
+                    // Create marker style
+                    const marker = L.circleMarker([lat, lng], {
+                        radius: 8,
+                        fillColor: props.color || '#3388ff',
+                        color: '#fff',
+                        weight: 2,
+                        opacity: 1,
+                        fillOpacity: 0.95
+                    });
+
+                    marker.bindPopup(popupContent);
+                    markerClusterGroup.addLayer(marker);
                 });
                 
-                // Add heatmap layer
+                // Add heatmap layer to its group
                 L.heatLayer(heatPoints, {
                     radius: 20,
                     blur: 15,
                     maxZoom: 15,
-                    max: 1.0,
+                    max: 3.0,
                     gradient: {0.4: 'blue', 0.6: 'cyan', 0.7: 'lime', 0.8: 'yellow', 1.0: 'red'}
-                }).addTo(map);
+                }).addTo(heatLayerGroup);
+            });
+
+        // Fetch Localities Polygons
+        fetch('/api/localidades-geojson')
+            .then(res => res.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    style: function (feature) {
+                        return {
+                            color: '#4f46e5',
+                            weight: 2,
+                            opacity: 0.5,
+                            fillColor: '#4f46e5',
+                            fillOpacity: 0.05
+                        };
+                    },
+                    onEachFeature: function (feature, layer) {
+                        layer.bindTooltip(`<b>${feature.properties.nombre}</b>`, {
+                            direction: 'center',
+                            className: 'bg-white border-0 shadow-sm rounded text-xs font-semibold'
+                        });
+                    }
+                }).addTo(localidadesLayerGroup);
             });
             
         // Setup placeholder for future WebSocket listener
         // window.Echo.channel('incidents').listen('IncidentReported', (e) => {
-        //   // We will append to heatPoints and redraw dynamically
+        //   // Update both layers dynamically
         // });
     });
 </script>

@@ -93,4 +93,25 @@ class GeoJSONController extends Controller
             'features' => $geoJsonFeatures
         ]);
     }
+
+    public function localidades()
+    {
+        $localidades = DB::select("SELECT id, nombre, ST_AsGeoJSON(geom) as geometry FROM localidades");
+
+        $features = array_map(function ($loc) {
+            return [
+                'type' => 'Feature',
+                'properties' => [
+                    'id' => $loc->id,
+                    'nombre' => $loc->nombre
+                ],
+                'geometry' => json_decode($loc->geometry)
+            ];
+        }, $localidades);
+
+        return response()->json([
+            'type' => 'FeatureCollection',
+            'features' => $features
+        ]);
+    }
 }
