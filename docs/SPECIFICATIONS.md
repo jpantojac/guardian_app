@@ -1,11 +1,11 @@
-# Software Requirements Specification (SRS) v1.1
+# Software Requirements Specification (SRS) v1.2
 ## GuardianApp - Plataforma WebGIS Participativa para Reporte de Incidentes de Seguridad
 
-**Versión:** 1.1  
-**Fecha:** 16 de diciembre de 2025  
+**Versión:** 1.2  
+**Fecha:** 27 de marzo de 2026 (Revisión Final de Implementación)  
 **Autor:** Julián Pantoja Clavijo  
 **Institución:** Universidad Nacional Abierta y a Distancia (UNAD)  
-**Estado del Documento:** Consolidado Técnico  
+**Estado del Documento:** Implementación Verificada — Preparado para Sustentación de Tesis  
 
 ---
 
@@ -13,13 +13,14 @@
 
 | Aspecto | Descripción |
 |--------|------------|
-| **Título** | Especificación de Requerimientos de Software GuardianApp v1.1 |
-| **Versión** | 1.1  |
-| **Estado** | FINAL  |
+| **Título** | Especificación de Requerimientos de Software GuardianApp v1.2 |
+| **Versión** | 1.2  |
+| **Estado** | IMPLEMENTACIÓN VERIFICADA  |
 | **Responsable** | Julián Pantoja Clavijo |
-| **Referencia** | SRS_GuardianApp_V1.1_Dic2025 |
+| **Referencia** | SRS_GuardianApp_V1.2_Mar2026 |
 | **Fecha Creación** | 16 de diciembre de 2025 |
-| **Verificación** | Arquitectura y Stack actualizados |
+| **Última Revisión** | 27 de marzo de 2026 |
+| **Verificación** | Codebase producción cotejado con requerimientos |
 
 ---
 
@@ -27,7 +28,7 @@
 
 1. [Introducción](#1-introducción)
 2. [Descripción General del Producto](#2-descripción-general-del-producto)
-3. [Requerimientos Funcionales](#3-requerimientos-funcionales-60-total)
+3. [Requerimientos Funcionales](#3-requerimientos-funcionales-64-total)
 4. [Requerimientos No Funcionales](#4-requerimientos-no-funcionales-41-total)
 5. [Requerimientos de Interfaz](#5-requerimientos-de-interfaz)
 6. [Arquitectura y Stack Tecnológico](#6-arquitectura-y-stack-tecnológico)
@@ -107,7 +108,7 @@ GuardianApp es plataforma SaaS web-based que evoluciona como componente de Siste
 
 ---
 
-## 3. Requerimientos Funcionales (60 TOTAL)
+## 3. Requerimientos Funcionales (64 TOTAL)
 
 ### 3.1 Gestión de Usuarios - (10 FR)
 
@@ -204,6 +205,17 @@ GuardianApp es plataforma SaaS web-based que evoluciona como componente de Siste
 
 **Subtotal: 11 FR**
 
+### 3.6 Cumplimiento Ley 1581 de 2012 — Protección de Datos Personales (4 FR)
+
+| ID | Requerimiento | Prioridad |
+|----|--------------|-----------|
+| **FR-61** | DEBE publicar página de Política de Tratamiento de Datos Personales (`/privacidad`) accesible de forma permanente y sin autenticación, conforme a lo establecido en la Ley 1581 de 2012 | CRÍTICA |
+| **FR-62** | DEBE publicar página de Términos y Condiciones de Uso (`/terminos`) accesible de forma permanente y sin autenticación | ALTA |
+| **FR-63** | DEBE mostrar en el pie de página (*footer*) de todas las vistas del sistema los hipervínculos a los documentos legales (Términos y Política de Privacidad) | CRÍTICA |
+| **FR-64** | DEBE incluir en el formulario de registro una casilla de verificación (*checkbox*) de consentimiento explícito, vinculada a los documentos legales; la creación de cuenta DEBE ser bloqueada tanto en *frontend* como en *backend* si el usuario no marca dicha casilla | CRÍTICA |
+
+**Subtotal: 4 FR**
+
 ---
 
 ## 4. Requerimientos No Funcionales (41 TOTAL)
@@ -294,14 +306,44 @@ GuardianApp es plataforma SaaS web-based que evoluciona como componente de Siste
 - Leyenda interactiva
 - Herramientas estándar
 
-### 5.4 Dashboard Administrador
-- Métricas clave
-- Lista de reportes pendientes
-- Filtros avanzados
+### 5.4 Dashboard Administrador (Implementado)
 
-### 5.5 Paleta de Colores y Estilo Visual
+El panel administrativo cuenta con las siguientes secciones operacionales implementadas:
 
-Esta paleta corresponde a la implementación actual en `app.blade.php`:
+**KPIs en Tiempo Real:**
+- Total de incidentes registrados (con filtro aplicado).
+- Incidentes del día en curso.
+- Total de usuarios y usuarios activos.
+
+**Gráficos Analíticos:**
+- **Reloj del Delito:** Gráfico de barras de distribución horaria (00:00–23:00). Permite identificar franjas de mayor actividad delictiva durante el día.
+- **Top 5 Localidades:** Ranking dinámico de las 5 localidades de Bogotá con mayor número de reportes, vinculado a las geometrías oficiales PostGIS/IDECA.
+- **Evolución Temporal:** Gráfico de línea que agrupa los incidentes por mes (vista anual) o por día (vista mensual o por rango de fechas).
+
+**Mapa Analítico con Control de Capas:**
+- Capa de **Mapa de Calor** (Leaflet.heat) con umbral de densidad calibrado para evidenciar hotspots orgánicos.
+- Capa de **Agrupación de Marcadores** (Leaflet.markercluster) para visualización individual de incidentes.
+- Capa de **Polígonos de Localidades** superpuesta sobre OpenStreetMap con los límites administrativos reales de Bogotá.
+- Control `L.control.layers` para alternar entre capas de forma interactiva.
+
+**Filtros Parametrizables:**
+- Por año, mes, rango personalizado de fechas.
+- Por una o múltiples categorías simultáneas (selección múltiple).
+
+### 5.5 API REST GeoJSON
+
+El sistema expone dos *endpoints* REST de solo lectura que proveen datos geoespaciales en formato GeoJSON estándar (RFC 7946), consumidos por la capa Leaflet del frontend:
+
+| Endpoint | Método | Descripción | Filtros disponibles |
+|---|---|---|---|
+| `/api/geojson` | GET | `FeatureCollection` de incidentes con propiedades: categoría, color, estado, localidad, evidencias fotográficas | `days`, `year`, `month`, `start_date`, `end_date`, `categories[]` |
+| `/api/localidades-geojson` | GET | `FeatureCollection` de los polígonos MultiPolygon de las 20 localidades de Bogotá (geometría oficial IDECA) | — |
+
+Ambos *endpoints* utilizan la función `ST_AsGeoJSON()` de PostGIS para serializar la geometría directamente desde la base de datos, garantizando precisión y eficiencia.
+
+### 5.6 Paleta de Colores y Estilo Visual
+
+Esta paleta corresponde a la implementación actual en `layouts/app.blade.php`:
 
 | Uso | Color | Código Hex |
 |---|---|---|
@@ -325,32 +367,59 @@ GuardianApp utiliza una arquitectura MVC (Modelo-Vista-Controlador) monolítica,
 ```
 guardianapp/
 ├── app/
+│   ├── Console/Commands/        # Comandos Artisan (ej: guardian:seed-today)
 │   ├── Http/Controllers/        # Lógica de Control
-│   ├── Models/                  # Modelos Eloquent + Geoespacial
-│   └── Services/                # Lógica de Negocio
+│   │   ├── Admin/               # Controladores del panel administrativo
+│   │   └── Api/                 # Controladores de la API REST (GeoJSON)
+│   └── Models/                  # Modelos Eloquent + Geoespacial (PostGIS)
 ├── database/
+│   ├── data/                    # Datos computados (localidades.sql - IDECA)
 │   ├── migrations/              # Definición de Schema
-│   └── seeders/                 # Datos Semilla
+│   └── seeders/                 # Datos Semilla (LocalidadSeeder, DemoIncidentSeeder)
 ├── resources/
-│   ├── views/                   # Plantillas Blade
-│   └── js/                      # Lógica Frontend (Vanilla JS)
+│   ├── views/
+│   │   ├── admin/               # Vistas del panel administrativo
+│   │   ├── auth/                # Vistas de autenticación
+│   │   ├── legal/               # Vistas de documentos legales (Ley 1581)
+│   │   └── layouts/             # Layout maestro (app.blade.php)
+│   └── js/                      # Lógica Frontend (Vanilla JS + Leaflet)
 ├── routes/
-│   ├── web.php                  # Web Routes
-│   └── api.php                  # API Endpoints
-└── tests/                       # Pruebas Automatizadas
+│   ├── web.php                  # Rutas Web (incluyendo /privacidad, /terminos)
+│   └── api.php                  # Rutas API (/api/geojson, /api/localidades-geojson)
+└── docs/                        # Documentación del proyecto (SRS, diagramas)
 ```
 
 ### 6.2 Stack Tecnológico Exacto
 
 | Capa | Tecnología | Versión | Notas |
 |---|---|---|---|
-| **Backend Framework** | Laravel | 12.x | Última versión estable |
+| **Backend Framework** | Laravel | 11.x | Versión en producción |
 | **Lenguaje** | PHP | 8.2+ | |
-| **Base de Datos** | PostgreSQL | 14+ | Relacional |
-| **Extensión Espacial** | PostGIS | 3.x | Tipos `GEOMETRY` y funciones espaciales |
+| **Base de Datos** | PostgreSQL | 15.x | Relacional |
+| **Extensión Espacial** | PostGIS | 3.x | Tipos `Point`, `MultiPolygon`; funciones `ST_Intersects()`, `ST_AsGeoJSON()`; índices `GIST` |
+| **Fuente de Datos Geoespaciales** | IDECA | — | Shapefiles oficiales de las 20 localidades de Bogotá |
 | **Frontend** | Blade + Vanilla JS | ES6+ | Sin SPA framework pesado |
-| **Estilos** | CSS Variables + Tailwind | v4.0 | Híbrido: Custom properties + Utility classes |
+| **Estilos** | CSS Variables | — | Custom properties; sin framework externo |
 | **Mapas** | Leaflet.js | 1.9.4 | Librería de mapas open-source |
+| **Plugins Leaflet** | Leaflet.heat + Leaflet.markercluster | — | Heatmap y agrupación de marcadores |
+
+### 6.3 Capa de Datos Geoespaciales (PostGIS / IDECA)
+
+El sistema implementa una capa de datos geoespacial completa sobre PostgreSQL + PostGIS para la gestión de información territorial de Bogotá:
+
+**Fuente de datos:** Infraestructura de Datos Espaciales para el Distrito Capital (IDECA), Alcaldía Mayor de Bogotá. Shapefiles de límites oficiales de las 20 localidades en sistema de referencia WGS84 (SRID: 4326).
+
+**Proceso de carga:**
+1. Conversión de Shapefile → volcado SQL con herramientas PostGIS (`shp2pgsql`).
+2. Almacenamiento en `database/data/localidades.sql` como fuente de verdad versionada en el repositorio.
+3. Inyección automática al ejecutar `php artisan migrate:fresh --seed` mediante `LocalidadSeeder`.
+
+**Asignación automática de localidad:**
+Cada incidente creado en el sistema invoca el método `Incident::assignLocalidad()`, que ejecuta la consulta espacial `ST_Intersects(location, geom)` para vincular automáticamente el punto GPS del reporte con el polígono de la localidad correspondiente.
+
+**Índices espaciales:** Tablas `localidades` e `incidents` cuentan con índices `GIST` para garantizar rendimiento en consultas geoespaciales a escala.
+
+**Comando de demostración:** El comando `php artisan guardian:seed-today --count=N` permite la inyección de N incidentes del día en curso con distribución orgánica (80% en hotspots estratégicos, 20% como ruido de fondo), sin afectar el historial existente. Diseñado para uso en presentaciones y demostraciones en vivo.
 
 ---
 
@@ -487,15 +556,15 @@ guardianapp/
 
 ### Anexo A: Resumen Ejecutivo
 
-**Total de Requerimientos:**
-- Requerimientos Funcionales (FR): 60
+**Total de Requerimientos (v1.2):**
+- Requerimientos Funcionales (FR): 64 *(+4 FR-61 a FR-64 Ley 1581)*
 - Requerimientos No Funcionales (NFR): 41
-- **TOTAL: 101 requerimientos**
+- **TOTAL: 105 requerimientos**
 
 **Distribución por Prioridad:**
-- CRÍTICA: 15 (15%)
-- ALTA: 55 (54%)
-- MEDIA: 31 (31%)
+- CRÍTICA: 18 (17%)
+- ALTA: 56 (53%)
+- MEDIA: 31 (30%)
 
 **Cobertura MVP:**
 - Todas las 5 áreas funcionales cubiertas
@@ -519,4 +588,5 @@ guardianapp/
 ---
 
 **Documento Verificado:** 16 de diciembre de 2025  
-**Estado:** CONSOLIDADO TÉCNICO
+**Revisión Final:** 27 de marzo de 2026 — Implementación cotejada con codebase en producción  
+**Estado:** IMPLEMENTACIÓN VERIFICADA — Preparado para Sustentación de Tesis
