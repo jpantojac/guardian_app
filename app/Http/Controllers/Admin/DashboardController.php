@@ -69,20 +69,11 @@ class DashboardController extends Controller
             ];
         });
             
-        // Incidents Trend Chart
+        // Incidents Trend Chart — auto granularity
         $trendQuery = clone $query;
-        
-        if (!$month && !$startDate && !$endDate) {
-            // Group by month (shows evolution across the selected year, or all history if year is "Todos")
-            $incidentsTrend = $trendQuery->select(
-                DB::raw("TO_CHAR(created_at, 'YYYY-MM') as date"), 
-                DB::raw('count(*) as count')
-            )
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-        } else {
-            // Group by day for specific month or specific start/end dates
+
+        if ($month || ($startDate && $endDate)) {
+            // Specific month or explicit date range → daily
             $incidentsTrend = $trendQuery->select(
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('count(*) as count')
@@ -90,6 +81,31 @@ class DashboardController extends Controller
             ->groupBy('date')
             ->orderBy('date')
             ->get();
+        } else {
+            // No month filter — check how many distinct months exist in the result
+            $monthCount = (clone $trendQuery)
+                ->selectRaw("COUNT(DISTINCT TO_CHAR(created_at, 'YYYY-MM')) as cnt")
+                ->value('cnt');
+
+            if ($monthCount <= 1) {
+                // Only one month (or empty) → show daily breakdown so the chart is useful
+                $incidentsTrend = $trendQuery->select(
+                    DB::raw('DATE(created_at) as date'),
+                    DB::raw('count(*) as count')
+                )
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
+            } else {
+                // Multiple months → monthly aggregation
+                $incidentsTrend = $trendQuery->select(
+                    DB::raw("TO_CHAR(created_at, 'YYYY-MM') as date"),
+                    DB::raw('count(*) as count')
+                )
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
+            }
         }
 
         // Crime Clock (Incidents by Hour)

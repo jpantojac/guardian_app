@@ -163,27 +163,53 @@
         const trendData = @json($incidentsTrend);
         const labels = trendData.map(d => d.date);
         const counts = trendData.map(d => d.count);
-        
-        new Chart(document.getElementById('trendChart'), {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Incidentes',
-                    data: counts,
-                    borderColor: '#4f46e5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true } }
-            }
-        });
+
+        if (trendData.length === 0) {
+            // Show empty state message instead of empty chart
+            const canvas = document.getElementById('trendChart');
+            const wrapper = canvas.parentElement;
+            canvas.style.display = 'none';
+            const msg = document.createElement('div');
+            msg.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:180px;color:#9ca3af;';
+            msg.innerHTML = '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:0.75rem;opacity:0.4"><path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-6"/></svg><p style="font-size:0.875rem;font-weight:500;">Sin datos para el período seleccionado</p><p style="font-size:0.75rem;margin-top:0.25rem;">Prueba ajustando los filtros de fecha</p>';
+            wrapper.appendChild(msg);
+        } else {
+            new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Incidentes',
+                        data: counts,
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: trendData.length === 1 ? 8 : 4,
+                        pointBackgroundColor: '#4f46e5',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => items[0].label,
+                                label: (item) => ` ${item.raw} incidente${item.raw !== 1 ? 's' : ''}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
 
         // --- 2. Doughnut Chart (Categories) ---
         const catData = @json($incidentsByCategory);

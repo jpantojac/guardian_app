@@ -86,15 +86,42 @@ Para permitir que las fotografías proporcionadas sean visibles a través del na
 php artisan storage:link
 ```
 
-### 6. Inyección de Datos en Vivo (Modo Demo)
+### 6. Inyección de Datos para Demo
 
-Para evidenciar la reacción de los KPIs, las gráficas y el mapa de calor ante un incremento abrupto de reportes simultáneos, es posible inyectar datos de forma inmediata ejecutando la siguiente instrucción:
+El proyecto incluye dos mecanismos para poblar la base de datos con datos de prueba realistas.
 
-```bash
-php artisan guardian:seed-today --count=100
+> ⚠️ **Importante:** Debido a que `phpunit.xml` define variables de entorno que apuntan a la base de datos de pruebas (`guardianapp_test`), **siempre se deben pasar las variables de producción explícitamente** al ejecutar seeders desde la línea de comandos.
+
+#### A) Historial completo (2,500 incidentes — recomendado para demo)
+
+Genera 2,500 incidentes distribuidos en las últimas 24 horas y en el último año, agrupados en hotspots realistas de Bogotá (Centro, Suba, Kennedy, Bosa, Usaquén). **Elimina los incidentes previos antes de insertar.**
+
+```powershell
+# PowerShell (Windows)
+$env:DB_DATABASE="guardianapp"; $env:DB_USERNAME="postgres"; $env:DB_PASSWORD="tu_password"; $env:APP_ENV="local"; php artisan db:seed --class=DemoIncidentSeeder
 ```
 
-*Nota: Este comando inyectará orgánicamente la cantidad de incidentes indicada con fecha del **día en curso**, concentrándolos algorítmicamente en los "hotspots" de la ciudad **y sin eliminar el historial** existente. Es el procedimiento idóneo para demostrar la actualización de datos y monitoreo analítico en tiempo real.*
+```bash
+# Linux / macOS
+DB_DATABASE=guardianapp DB_USERNAME=postgres DB_PASSWORD=tu_password APP_ENV=local php artisan db:seed --class=DemoIncidentSeeder
+```
+
+| Bloque | Cantidad | Rango de fechas |
+|--------|----------|-----------------|
+| Pico reciente | 1,500 | Últimas 24 horas |
+| Historial | 1,000 | Últimos 365 días |
+| **Total** | **2,500** | |
+
+#### B) Inyección de datos del día en curso (sin borrar historial)
+
+Agrega incidentes con fecha **de hoy** sobre los datos existentes. Ideal para demostrar actualizaciones en tiempo real durante la presentación.
+
+```powershell
+# PowerShell (Windows)
+$env:DB_DATABASE="guardianapp"; $env:APP_ENV="local"; php artisan guardian:seed-today --count=50
+```
+
+*El parámetro `--count` es ajustable según la cantidad deseada. Este comando **no elimina datos previos**.*
 
 ---
 
@@ -117,7 +144,7 @@ Posteriormente, acceder mediante el navegador a `http://localhost:8000`.
 - **Reporte Anónimo o Identificado**: Opción libre de reportar sin requerir la creación de una cuenta, o bien, iniciar sesión para un seguimiento personalizado.
 - **Georreferenciación Precisa**: Uso de un mapa interactivo para seleccionar las coordenadas exactas del incidente.
 - **Evidencia Visual**: Carga de material fotográfico respaldada por validaciones de seguridad.
-- **Filtros Avanzados**: Filtrado paramétrico por radio de distancia (km), tiempo transcurrido (1h, 6h, 24h) y tipología de la categoría.
+- **Filtros Avanzados**: Filtrado paramétrico por radio de distancia (km), período de tiempo (1h, 24h, 7 días — por defecto: últimos 7 días) y tipología de categoría.
 - **Privacidad**: Los reportes se presentan con agregación estadística, y determinados datos sensibles poseen la capacidad de ser ofuscados.
 
 ### Medidas de Calidad y Seguridad:

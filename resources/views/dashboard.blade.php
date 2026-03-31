@@ -6,7 +6,7 @@
     <div id="map"></div>
 
     <!-- Floating Report Button -->
-    <div style="position: absolute; bottom: 2rem; right: 1rem; z-index: 999;">
+    <div style="position: absolute; bottom: calc(var(--footer-h, 44px) + 1rem); right: 1rem; z-index: 999;">
         @auth
             <button onclick="openReportModal()" class="map-fab large" title="Reportar Incidente">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -44,9 +44,9 @@
                     <label style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">Período de
                         tiempo</label>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button class="filter-btn time-filter active" data-hours="1">1 hora</button>
-                        <button class="filter-btn time-filter" data-hours="6">6 horas</button>
+                        <button class="filter-btn time-filter" data-hours="1">1 hora</button>
                         <button class="filter-btn time-filter" data-hours="24">24 horas</button>
+                        <button class="filter-btn time-filter active" data-hours="168">7 días</button>
                     </div>
                 </div>
 
@@ -869,7 +869,7 @@
         let allIncidents = [];
         let userLocation = null;
         let currentFilters = {
-            hours: 1,
+            hours: 168,
             categories: [],
             distanceKm: 2
         };
@@ -1202,7 +1202,8 @@
                 const timeMatch = incidentDate >= hoursAgo;
                 const categoryMatch = currentFilters.categories.includes(category);
 
-                let distanceMatch = false;
+                // Si no hay ubicacion del usuario aun, no filtrar por distancia
+                let distanceMatch = !userLocation; // true cuando no hay GPS
                 if (userLocation) {
                     const coords = feature.geometry.coordinates;
                     const distance = calculateDistance(

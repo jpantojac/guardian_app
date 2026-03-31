@@ -323,9 +323,20 @@
             padding: 2rem;
         }
 
+        /* Footer height tokens — single source of truth */
+        :root {
+            --navbar-h: 64px;
+            --footer-h: 44px;
+        }
+
         #map {
-            height: calc(100vh - 64px);
+            /* Leave room for navbar (top) + fixed footer (bottom) */
+            height: calc(100vh - var(--navbar-h) - var(--footer-h));
             width: 100%;
+        }
+
+        @media (max-width: 600px) {
+            :root { --footer-h: 56px; }
         }
 
         .card {
@@ -620,15 +631,35 @@
         @yield('content')
     </main>
     
-    <!-- Global Legal Footer -->
-    <footer style="background-color: var(--surface); border-top: 1px solid var(--border-color); padding: 1.5rem 2rem; text-align: center; margin-top: 3rem;">
-        <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">
-            <a href="{{ route('legal.terminos') }}" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-weight: 500;">Términos de Uso</a> | 
-            <a href="{{ route('legal.privacidad') }}" style="color: var(--text-secondary); text-decoration: none; margin: 0 0.5rem; font-weight: 500;">Política de Privacidad (Ley 1581)</a>
-            <br>
-            <span style="display: inline-block; margin-top: 0.75rem;">&copy; {{ date('Y') }} GuardianApp - WebGIS Participativo</span>
+    <!-- Global Legal Footer — fixed at bottom, always visible -->
+    <footer id="app-footer" style="
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 2500;
+        background-color: var(--surface);
+        border-top: 1px solid var(--border-color);
+        height: var(--footer-h);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 1rem;
+        gap: 0.25rem;
+    ">
+        <p style="color: var(--text-secondary); font-size: 0.8125rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; line-height: 1.4;">
+            <a href="{{ route('legal.terminos') }}" style="color: var(--text-secondary); text-decoration: none; font-weight: 500;">Términos de Uso</a>
+            <span style="margin: 0 0.35rem; opacity: 0.4;">|</span>
+            <a href="{{ route('legal.privacidad') }}" style="color: var(--text-secondary); text-decoration: none; font-weight: 500;">Política de Privacidad (Ley&nbsp;1581)</a>
+            <span class="footer-copy" style="margin-left: 0.75rem; opacity: 0.55; font-size: 0.75rem;">© {{ date('Y') }} GuardianApp</span>
         </p>
     </footer>
+    <style>
+        /* On very small screens collapse copyright to save space */
+        @media (max-width: 480px) {
+            .footer-copy { display: none; }
+        }
+    </style>
 
     <!-- Edit Profile Modal -->
     <div id="profile-modal"
