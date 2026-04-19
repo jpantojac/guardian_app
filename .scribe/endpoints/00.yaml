@@ -1,0 +1,284 @@
+name: Autenticación
+description: |-
+
+  APIs para gestionar el registro, inicio de sesión y perfil de usuarios usando Laravel Sanctum.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/register
+    metadata:
+      custom: []
+      groupName: Autenticación
+      groupDescription: |-
+
+        APIs para gestionar el registro, inicio de sesión y perfil de usuarios usando Laravel Sanctum.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Registro de nuevo usuario.'
+      description: 'Permite la creación de un nuevo perfil ciudadano en la plataforma. Al completarse, retorna las credenciales de acceso (Token Sanctum) en formato Bearer para autenticar el dispositivo de forma segura.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        custom: []
+        name: name
+        description: 'Nombre completo del ciudadano o seudónimo de registro.'
+        required: true
+        example: 'Maria Torres'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      email:
+        custom: []
+        name: email
+        description: 'Correo electrónico único válido, servirá como usuario de acceso.'
+        required: true
+        example: mtorres@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: 'Contraseña segura (mínimo 8 caracteres).'
+        required: true
+        example: S3cur3P@ssw0rd!
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      password_confirmation:
+        custom: []
+        name: password_confirmation
+        description: 'Confirmación idéntica a la contraseña enviada en `password`.'
+        required: true
+        example: S3cur3P@ssw0rd!
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      name: 'Maria Torres'
+      email: mtorres@example.com
+      password: S3cur3P@ssw0rd!
+      password_confirmation: S3cur3P@ssw0rd!
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+           "access_token": "1|abcdef1234567890",
+           "token_type": "Bearer",
+           "user": {
+             "id": 145,
+             "name": "Maria Torres",
+             "email": "mtorres@example.com",
+             "role": "user"
+           }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/login
+    metadata:
+      custom: []
+      groupName: Autenticación
+      groupDescription: |-
+
+        APIs para gestionar el registro, inicio de sesión y perfil de usuarios usando Laravel Sanctum.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Inicio de sesión.'
+      description: 'Autentica a un usuario existente mediante sus credenciales (correo electrónico y contraseña). El sistema emite un token de acceso temporal mediante Laravel Sanctum, que el dispositivo móvil o frontend enviará en cabeceras HTTP subsecuentes.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      email:
+        custom: []
+        name: email
+        description: 'Correo registrado del usuario.'
+        required: true
+        example: juanperez@example.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      password:
+        custom: []
+        name: password
+        description: 'Contraseña vinculada a su perfil de seguridad.'
+        required: true
+        example: M1P4ssw0rd!
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      email: juanperez@example.com
+      password: M1P4ssw0rd!
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+           "access_token": "2|qwerty0987654321",
+           "token_type": "Bearer",
+           "user": {
+             "id": 12,
+             "name": "Juan Perez",
+             "email": "juanperez@example.com",
+             "role": "user"
+           }
+          }
+        headers: []
+        description: ''
+      -
+        custom: []
+        status: 422
+        content: |-
+          {
+           "message": "Las credenciales proporcionadas son incorrectas.",
+           "errors": {
+             "email": ["Las credenciales proporcionadas son incorrectas."]
+           }
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/logout
+    metadata:
+      custom: []
+      groupName: Autenticación
+      groupDescription: |-
+
+        APIs para gestionar el registro, inicio de sesión y perfil de usuarios usando Laravel Sanctum.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Cerrar sesión.'
+      description: 'Invalida el token actual (Bearer Token) del usuario, finalizando su sesión activa en el dispositivo invocador. Mejora la seguridad tras desvincular un cliente específico.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "message": "Sesión cerrada correctamente"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/user
+    metadata:
+      custom: []
+      groupName: Autenticación
+      groupDescription: |-
+
+        APIs para gestionar el registro, inicio de sesión y perfil de usuarios usando Laravel Sanctum.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Obtener perfil autenticado.'
+      description: 'Retorna la información en detalle asociada al titular del token Sanctum actual, confirmando que la sesión siga activa y las credenciales sean correctas.'
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "id": 12,
+            "name": "Juan Perez",
+            "email": "juanperez@example.com",
+            "email_verified_at": null,
+            "role": "user",
+            "created_at": "2026-03-01T21:00:00.000000Z"
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null

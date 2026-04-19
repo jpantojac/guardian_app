@@ -1,0 +1,333 @@
+name: Incidentes
+description: |-
+
+  APIs para gestionar los reportes ciudadanos de incidentes, incluyendo soporte a filtros y geolocalización.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/incidents
+    metadata:
+      custom: []
+      groupName: Incidentes
+      groupDescription: |-
+
+        APIs para gestionar los reportes ciudadanos de incidentes, incluyendo soporte a filtros y geolocalización.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Reportar nuevo incidente.'
+      description: |-
+        Crea y registra un nuevo evento de seguridad en la base de datos de manera centralizada.
+        Recibe coordenadas geográficas (latitud, longitud), detalles en texto y recursos multimedia opcionales (fotos).
+        Tras registrar el incidente, el sistema analiza si el evento detona alguna alerta en la zona.
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: multipart/form-data
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      category_id:
+        custom: []
+        name: category_id
+        description: 'ID de la categoría de delito aplicable al evento.'
+        required: true
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      description:
+        custom: []
+        name: description
+        description: 'Descripción textual y detallada del evento presenciado.'
+        required: true
+        example: 'Sospechoso intentando abrir vehículo estacionado.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      latitude:
+        custom: []
+        name: latitude
+        description: 'Latitud de la ubicación del incidente según GPS.'
+        required: true
+        example: 4.6097
+        type: number
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      longitude:
+        custom: []
+        name: longitude
+        description: 'Longitud de la ubicación del incidente según GPS.'
+        required: true
+        example: -74.0817
+        type: number
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      location_description:
+        custom: []
+        name: location_description
+        description: 'Descripción adicional para facilitar la localización exacta.'
+        required: false
+        example: 'Frente al parqueadero norte.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: true
+        deprecated: false
+      privacy_level:
+        custom: []
+        name: privacy_level
+        description: "Nivel de privacidad requerido para proteger la identidad del ciudadano ('ANONYMOUS' o 'IDENTIFIED')."
+        required: true
+        example: ANONYMOUS
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      photos:
+        custom: []
+        name: photos
+        description: '(Opcional) Subida de hasta 3 fotografías como evidencia visual del suceso (Máx. 10MB por archivo).'
+        required: false
+        example:
+          - null
+        type: 'file[]'
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      category_id: 2
+      description: 'Sospechoso intentando abrir vehículo estacionado.'
+      latitude: 4.6097
+      longitude: -74.0817
+      location_description: 'Frente al parqueadero norte.'
+      privacy_level: ANONYMOUS
+    fileParameters:
+      photos:
+        - null
+    responses:
+      -
+        custom: []
+        status: 201
+        content: |-
+          {
+            "id": 205,
+            "user_id": 8,
+            "category_id": 2,
+            "description": "Sospechoso intentando abrir vehículo estacionado.",
+            "location_description": "Frente al parqueadero norte.",
+            "privacy_level": "ANONYMOUS",
+            "status": "reported",
+            "created_at": "2026-04-05T21:00:00.000000Z",
+            "photos": []
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/incidents
+    metadata:
+      custom: []
+      groupName: Incidentes
+      groupDescription: |-
+
+        APIs para gestionar los reportes ciudadanos de incidentes, incluyendo soporte a filtros y geolocalización.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Listado paginado de incidentes.'
+      description: 'Obtiene una lista de los incidentes reportados ordenados desde el más reciente. Este endpoint facilita la revisión de eventos e incluye información básica del reporte y su clasificación de seguridad.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      category_id:
+        custom: []
+        name: category_id
+        description: 'Filtrar por ID de la categoría (tipo de delito).'
+        required: false
+        example: 3
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      status:
+        custom: []
+        name: status
+        description: "Estado actual del incidente: 'reported', 'investigating', 'resolved', 'dismissed'."
+        required: false
+        example: reported
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      days:
+        custom: []
+        name: days
+        description: 'Limita los resultados a los últimos N días.'
+        required: false
+        example: 30
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      page:
+        custom: []
+        name: page
+        description: 'Número de página correspondiente de la paginación.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      category_id: 3
+      status: reported
+      days: 30
+      page: 1
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+           "current_page": 1,
+           "data": [
+             {
+               "id": 1500,
+               "category_id": 3,
+               "user_id": 200,
+               "description": "Se presenció una pelea...",
+               "status": "reported",
+               "created_at": "2026-04-02T10:00:00.000000Z",
+               "category": { "id": 3, "name": "Disturbios", "color": "#f39c12", "icon": "warning" },
+               "user": { "id": 200, "name": "Usuario Anónimo" }
+             }
+           ],
+           "from": 1,
+           "last_page": 10,
+           "per_page": 20,
+           "to": 20,
+           "total": 200
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: 'api/incidents/{incident_id}'
+    metadata:
+      custom: []
+      groupName: Incidentes
+      groupDescription: |-
+
+        APIs para gestionar los reportes ciudadanos de incidentes, incluyendo soporte a filtros y geolocalización.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Detalles completos del incidente.'
+      description: 'Este endpoint despliega toda la información en profundidad de un único incidente, incluyendo estadísticas sociales asociadas. Principalmente se utiliza para las vistas de detalle de la aplicación ciudadana para comentar y reaccionar.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      incident_id:
+        custom: []
+        name: incident_id
+        description: 'The ID of the incident.'
+        required: true
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      incident:
+        custom: []
+        name: incident
+        description: 'ID numérico del incidente a consultar.'
+        required: true
+        example: 205
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanUrlParameters:
+      incident_id: 1
+      incident: 205
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+            "id": 205,
+            "description": "Sospechoso intentando abrir vehículo estacionado.",
+            "status": "reported",
+            "privacy_level": "ANONYMOUS",
+            "social_stats": {
+               "comments_count": 5,
+               "reactions_count": 12,
+               "reaction_types": { "like": 10, "care": 2 }
+            },
+            "category": { "id": 2, "name": "Vandalismo/Robo Vehicular" },
+            "user": { "id": 8, "name": "Carlos Gomez", "profile_photo_path": "profiles/photo.jpg" },
+            "comments": [],
+            "photos": []
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

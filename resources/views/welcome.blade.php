@@ -4,7 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+        <title>GuardianApp - Sistema de Seguridad Ciudadana</title>
+        <meta name="description" content="Reporta incidentes de seguridad en tu comunidad y visualiza alertas en tiempo real con GuardianApp.">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -66,7 +67,7 @@
                                 <a href="https://laravel.com/docs" target="_blank" class="inline-flex items-center space-x-1 font-medium underline underline-offset-4 text-[#f53003] dark:text-[#FF4433] ml-1">
                                     <span>Documentation</span>
                                     <svg
-                                        width="10"
+                                        aria-hidden="true" width="10"
                                         height="11"
                                         viewBox="0 0 10 11"
                                         fill="none"

@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>GuardianApp - WebGIS Participativo</title>
+    <title>GuardianApp - Sistema Participativo de Seguridad Ciudadana</title>
+    <meta name="description" content="GuardianApp es una plataforma WebGIS que permite a los ciudadanos reportar y visualizar incidentes de seguridad en tiempo real para mejorar la convivencia comunitaria.">
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -539,7 +540,7 @@
 </head>
 
 <body>
-    <nav class="navbar"><a href="/" class="navbar-brand"><svg xmlns="http://www.w3.org/2000/svg"
+    <nav class="navbar"><a href="/" class="navbar-brand" aria-label="GuardianApp Inicio"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                 xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="33px" viewBox="0 0 30 33" version="1.1">
                 <g id="surface1">
                     <path
@@ -559,16 +560,16 @@
                         d="M 16.019531 10.816406 C 16.601562 11.148438 17.109375 11.625 17.347656 12.261719 C 17.523438 13.035156 17.453125 13.78125 17.023438 14.453125 C 16.660156 15.007812 16.195312 15.359375 15.550781 15.546875 C 14.6875 15.652344 13.882812 15.628906 13.160156 15.089844 C 12.636719 14.640625 12.308594 14.054688 12.199219 13.378906 C 12.152344 12.570312 12.417969 11.902344 12.9375 11.277344 C 13.789062 10.480469 14.972656 10.320312 16.019531 10.816406 Z M 16.019531 10.816406 " />
                 </g>
             </svg><span>GuardianApp</span></a><!-- Desktop Navigation -->
-        <div class="nav-links desktop-nav"><a href="/">Mapa</a>
+        <div class="nav-links desktop-nav" role="navigation"><a href="/">Mapa</a>
             @auth
             @if(auth()->user()->role === 'admin' || auth()->user()->role === 'moderator')
                 <a href="{{ route('admin.dashboard') }}" style="color: var(--primary); font-weight: 600;">Panel Admin</a>
             @endif
             <span class="user-name">{{ auth()->user()->name }}</span>
             <form action="{{ route('logout') }}" method="POST" style="display: inline;">@csrf <button type="submit"
-        class="btn btn-logout">Salir</button></form>@else <button onclick="openLoginModal()"
+        class="btn btn-logout" aria-label="Cerrar sesión">Salir</button></form>@else <button onclick="openLoginModal()"
                     class="btn-login">Iniciar Sesión</button>@endauth
-        </div><!-- Mobile Profile Avatar -->@auth <div class="profile-avatar" onclick="toggleProfileMenu()">
+        </div><!-- Mobile Profile Avatar -->@auth <div class="profile-avatar" onclick="toggleProfileMenu()" role="button" aria-haspopup="true" aria-expanded="false" aria-label="Menú de perfil">
             <div class="avatar-circle">
                 @if(auth()->user()->profile_photo_path)
                     <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Avatar"
@@ -582,9 +583,10 @@
                 <div class="dropdown-header">
                     <div class="dropdown-avatar">
                         @if(auth()->user()->profile_photo_path)
-                            <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Avatar"
+                            <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Avatar de {{ auth()->user()->name }}"
+                                width="48" height="48" loading="lazy"
                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">@else <svg
-                                width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
@@ -666,9 +668,9 @@
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem 0;">
         <div class="card"
             style="width: 100%; max-width: 500px; position: relative; animation: slideUp 0.3s ease-out; margin: auto;">
-            <button onclick="closeProfileModal()"
+            <button onclick="closeProfileModal()" aria-label="Cerrar modal de perfil"
                 style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; color: var(--text-secondary); z-index: 1;"><svg
-                    width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg></button>
@@ -807,7 +809,7 @@
 
     </script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
     <script> // Profile dropdown menu toggle
 
         function toggleProfileMenu() {
@@ -1109,9 +1111,9 @@
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; cursor: zoom-out;">
         <img id="lightbox-image" src=""
             style="max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); object-fit: contain;">
-        <button onclick="closeImageLightbox()"
+        <button onclick="closeImageLightbox()" aria-label="Cerrar visualización de imagen"
             style="position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; transition: background 0.2s;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>

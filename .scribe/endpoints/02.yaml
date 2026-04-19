@@ -1,0 +1,215 @@
+name: 'Análisis Espacial (GeoJSON)'
+description: |-
+
+  APIs que exponen datos en formato estándar GeoJSON (RFC 7946) para ser consumidos por mapas.
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/geojson
+    metadata:
+      custom: []
+      groupName: 'Análisis Espacial (GeoJSON)'
+      groupDescription: |-
+
+        APIs que exponen datos en formato estándar GeoJSON (RFC 7946) para ser consumidos por mapas.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Obtener incidentes en GeoJSON.'
+      description: 'Retorna una colección de características GeoJSON (`FeatureCollection`) que representan los incidentes registrados en el sistema, ideal para ser consumida directamente por mapas web y sistemas SIG. Permite filtrar los resultados temporalmente o por categoría.'
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      days:
+        custom: []
+        name: days
+        description: 'Filtrar incidentes de los últimos N días.'
+        required: false
+        example: 7
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      year:
+        custom: []
+        name: year
+        description: 'Filtrar por año.'
+        required: false
+        example: 2026
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      month:
+        custom: []
+        name: month
+        description: 'Filtrar por mes (1-12).'
+        required: false
+        example: 3
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      start_date:
+        custom: []
+        name: start_date
+        description: 'date Filtrar incidentes ocurridos desde esta fecha de inicio.'
+        required: false
+        example: '2026-03-01'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      end_date:
+        custom: []
+        name: end_date
+        description: 'date Filtrar incidentes ocurridos hasta esta fecha de fin.'
+        required: false
+        example: '2026-03-31'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      category_id:
+        custom: []
+        name: category_id
+        description: 'Filtrar por ID de la categoría del delito.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+      categories:
+        custom: []
+        name: categories
+        description: 'Filtrar múltiples IDs de categoría.'
+        required: false
+        example:
+          - 1
+          - 2
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        deprecated: false
+    cleanQueryParameters:
+      days: 7
+      year: 2026
+      month: 3
+      start_date: '2026-03-01'
+      end_date: '2026-03-31'
+      category_id: 1
+      categories:
+        - 1
+        - 2
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+           "type": "FeatureCollection",
+           "features": [
+             {
+               "type": "Feature",
+               "geometry": {
+                 "type": "Point",
+                 "coordinates": [-74.0721, 4.711]
+               },
+               "properties": {
+                 "id": 1001,
+                 "category": "Hurto a personas",
+                 "color": "#ff0000",
+                 "icon": "hurto_icon",
+                 "description": "Robo con arma blanca en la calle 80",
+                 "location_description": "Cerca a la estación de Transmilenio",
+                 "status": "reported",
+                 "privacy_level": "IDENTIFIED",
+                 "reporter_name": "Juan Perez",
+                 "localidad": "Engativá",
+                 "photos": ["http://guardianapp.test/storage/incident_photos/example.jpg"],
+                 "created_at": "2026-04-01T14:30:00Z"
+               }
+             }
+           ]
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/localidades-geojson
+    metadata:
+      custom: []
+      groupName: 'Análisis Espacial (GeoJSON)'
+      groupDescription: |-
+
+        APIs que exponen datos en formato estándar GeoJSON (RFC 7946) para ser consumidos por mapas.
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Obtener polígonos de localidades (GeoJSON).'
+      description: |-
+        Retorna la capa cartográfica de las localidades de la ciudad en formato `FeatureCollection` GeoJSON.
+        Útil para renderizar los límites jurisdiccionales sociodemográficos sobre el mapa principal.
+      authenticated: false
+      deprecated: false
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 200
+        content: |-
+          {
+           "type": "FeatureCollection",
+           "features": [
+             {
+               "type": "Feature",
+               "properties": {
+                 "id": 1,
+                 "nombre": "Usaquén"
+               },
+               "geometry": {
+                 "type": "MultiPolygon",
+                 "coordinates": [[[[ -74.012, 4.789 ], [ -74.015, 4.792 ]]]]
+               }
+             }
+           ]
+          }
+        headers: []
+        description: ''
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null

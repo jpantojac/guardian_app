@@ -8,15 +8,15 @@
     <!-- Floating Report Button -->
     <div style="position: absolute; bottom: calc(var(--footer-h, 44px) + 1rem); right: 1rem; z-index: 999;">
         @auth
-            <button onclick="openReportModal()" class="map-fab large" title="Reportar Incidente">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button onclick="openReportModal()" class="map-fab large" title="Reportar Incidente" aria-label="Abrir modal para reportar incidente">
+                <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
             </button>
         @else
-            <button onclick="openLoginModal()" class="map-fab large" title="Iniciar sesión para reportar">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <button onclick="openLoginModal()" class="map-fab large" title="Iniciar sesión para reportar" aria-label="Iniciar sesión para reportar incidente">
+                <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
@@ -30,9 +30,9 @@
             <div class="margin-bottom-1rem"
                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h3 style="font-size: 1rem; font-weight: 600; margin: 0;">Filtros</h3>
-                <button id="toggle-filters"
+                <button id="toggle-filters" aria-label="Contraer o expandir filtros"
                     style="background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 0.25rem;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
                 </button>
@@ -58,7 +58,7 @@
                         <span id="distance-value" style="font-size: 0.875rem; font-weight: 600; color: var(--primary);">2
                             km</span>
                     </div>
-                    <input type="range" id="distance-slider" min="1" max="40" value="2" class="distance-slider">
+                    <input type="range" id="distance-slider" min="1" max="40" value="2" class="distance-slider" aria-label="Ajustar radio de búsqueda en kilómetros">
                     <div style="display: flex; justify-content: space-between; margin-top: 0.25rem;">
                         <span style="font-size: 0.625rem; color: var(--text-secondary);">1 km</span>
                         <span style="font-size: 0.625rem; color: var(--text-secondary);">40 km</span>
@@ -116,9 +116,9 @@
     <div id="auth-modal"
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; align-items: center; justify-content: center;">
         <div class="card" style="width: 100%; max-width: 400px; position: relative; animation: slideUp 0.3s ease-out;">
-            <button onclick="closeLoginModal()"
+            <button onclick="closeLoginModal()" aria-label="Cerrar modal de autenticación"
                 style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; color: var(--text-secondary);">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -213,9 +213,9 @@
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem 0;">
         <div class="card"
             style="width: 100%; max-width: 700px; position: relative; animation: slideUp 0.3s ease-out; margin: auto;">
-            <button onclick="closeReportModal()"
+            <button onclick="closeReportModal()" aria-label="Cerrar formulario de reporte"
                 style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; color: var(--text-secondary); z-index: 1;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -360,9 +360,9 @@
         style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; overflow-y: auto; padding: 2rem 0;">
         <div class="card"
             style="width: 100%; max-width: 700px; position: relative; animation: slideUp 0.3s ease-out; margin: auto; max-height: 90vh; display: flex; flex-direction: column;">
-            <button onclick="closeIncidentsModal()"
+            <button onclick="closeIncidentsModal()" aria-label="Cerrar listado de incidentes"
                 style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; color: var(--text-secondary); z-index: 1;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
@@ -886,9 +886,17 @@
                 zoomControl: false
             }).setView([4.6097, -74.0817], 12);
 
-            L.control.zoom({
+            const zoomControl = L.control.zoom({
                 position: 'topright'
             }).addTo(map);
+            
+            // Fix Leaflet zoom buttons accessibility
+            setTimeout(() => {
+                const zoomIn = document.querySelector('.leaflet-control-zoom-in');
+                const zoomOut = document.querySelector('.leaflet-control-zoom-out');
+                if (zoomIn) { zoomIn.setAttribute('aria-label', 'Aumentar zoom'); zoomIn.title = 'Aumentar zoom'; }
+                if (zoomOut) { zoomOut.setAttribute('aria-label', 'Disminuir zoom'); zoomOut.title = 'Disminuir zoom'; }
+            }, 100);
 
             const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: 'OpenStreetMap'
@@ -910,9 +918,15 @@
                 "OpenStreetMap": osm
             };
 
-            L.control.layers(baseMaps, null, {
+            const layerControl = L.control.layers(baseMaps, null, {
                 position: 'topright'
             }).addTo(map);
+
+            // Fix Leaflet layers button accessibility
+            setTimeout(() => {
+                const layerBtn = document.querySelector('.leaflet-control-layers-toggle');
+                if (layerBtn) { layerBtn.setAttribute('aria-label', 'Cambiar capas del mapa'); layerBtn.title = 'Capas del mapa'; }
+            }, 100);
 
             markersLayer = L.layerGroup().addTo(map);
 
@@ -1101,21 +1115,21 @@
             const config = categoryConfig[category] || categoryConfig['Otro'];
             return L.divIcon({
                 html: `
-                                                                                                                                                                                                                                                                                            <div style="
-                                                                                                                                                                                                                                                                                                width: 32px;
-                                                                                                                                                                                                                                                                                                height: 32px;
-                                                                                                                                                                                                                                                                                                background-color: ${config.color};
-                                                                                                                                                                                                                                                                                                border: 3px solid white;
-                                                                                                                                                                                                                                                                                                border-radius: 50%;
-                                                                                                                                                                                                                                                                                                display: flex;
-                                                                                                                                                                                                                                                                                                align-items: center;
-                                                                                                                                                                                                                                                                                                justify-content: center;
-                                                                                                                                                                                                                                                                                                font-size: 16px;
-                                                                                                                                                                                                                                                                                                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                                                                                                                                                                                                                                                                                            ">
-                                                                                                                                                                                                                                                                                                ${config.icon}
-                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                        `,
+                    <div role="img" aria-label="Incidente de ${category}" style="
+                        width: 32px;
+                        height: 32px;
+                        background-color: ${config.color};
+                        border: 3px solid white;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 16px;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                    ">
+                        ${config.icon}
+                    </div>
+                `,
                 className: '',
                 iconSize: [32, 32],
                 iconAnchor: [16, 16],
@@ -1147,7 +1161,7 @@
                                                                                                                                                                                                                                 <div style="display: flex; gap: 4px; margin-top: 8px; overflow: hidden;">
                                                                                                                                                                                                                                     ${props.photos.slice(0, 3).map(url => `
                                                                                                                                                                                                                                         <div style="width: 40px; height: 40px; border-radius: 4px; overflow: hidden; cursor: pointer;" onclick="openImageLightbox('${url}')">
-                                                                                                                                                                                                                                            <img src="${url}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                                                                                                                                                                                                            <img src="${url}" alt="Evidencia de ${category}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;">
                                                                                                                                                                                                                                         </div>
                                                                                                                                                                                                                                     `).join('')}
                                                                                                                                                                                                                                     ${props.photos.length > 3 ? `<div style="width: 40px; height: 40px; background: #f3f4f6; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #6b7280;">+${props.photos.length - 3}</div>` : ''}
@@ -1443,6 +1457,8 @@
                                                                                                                                                                                                                                                 <div style="margin-bottom: 0.75rem; overflow-x: auto; display: flex; gap: 0.5rem; padding-bottom: 0.5rem;">
                                                                                                                                                                                                                                                 ${props.photos.map(url => `
                                                                                                                                                                                                                                                     <img src="${url}" 
+                                                                                                                                                                                                                                                        alt="Foto de evidencia - ${category}"
+                                                                                                                                                                                                                                                        loading="lazy"
                                                                                                                                                                                                                                                         onclick="event.stopPropagation(); openImageLightbox('${url}')"
                                                                                                                                                                                                                                                         style="height: 60px; width: 60px; object-fit: cover; border-radius: 0.375rem; border: 1px solid var(--border-color); flex-shrink: 0; cursor: zoom-in; transition: transform 0.2s;"
                                                                                                                                                                                                                                                         onmouseover="this.style.transform='scale(1.1)'"

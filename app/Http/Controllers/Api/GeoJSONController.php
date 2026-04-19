@@ -7,8 +7,53 @@ use App\Models\Incident;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @group Análisis Espacial (GeoJSON)
+ *
+ * APIs que exponen datos en formato estándar GeoJSON (RFC 7946) para ser consumidos por mapas.
+ */
 class GeoJSONController extends Controller
 {
+    /**
+     * Obtener incidentes en GeoJSON.
+     * 
+     * Retorna una colección de características GeoJSON (`FeatureCollection`) que representan los incidentes registrados en el sistema, ideal para ser consumida directamente por mapas web y sistemas SIG. Permite filtrar los resultados temporalmente o por categoría.
+     *
+     * @queryParam days int Filtrar incidentes de los últimos N días. Example: 7
+     * @queryParam year int Filtrar por año. Example: 2026
+     * @queryParam month int Filtrar por mes (1-12). Example: 3
+     * @queryParam start_date date Filtrar incidentes ocurridos desde esta fecha de inicio. Example: 2026-03-01
+     * @queryParam end_date date Filtrar incidentes ocurridos hasta esta fecha de fin. Example: 2026-03-31
+     * @queryParam category_id int Filtrar por ID de la categoría del delito. Example: 1
+     * @queryParam categories array Filtrar múltiples IDs de categoría. Example: [1,2]
+     * 
+     * @response {
+     *  "type": "FeatureCollection",
+     *  "features": [
+     *    {
+     *      "type": "Feature",
+     *      "geometry": {
+     *        "type": "Point",
+     *        "coordinates": [-74.0721, 4.711]
+     *      },
+     *      "properties": {
+     *        "id": 1001,
+     *        "category": "Hurto a personas",
+     *        "color": "#ff0000",
+     *        "icon": "hurto_icon",
+     *        "description": "Robo con arma blanca en la calle 80",
+     *        "location_description": "Cerca a la estación de Transmilenio",
+     *        "status": "reported",
+     *        "privacy_level": "IDENTIFIED",
+     *        "reporter_name": "Juan Perez",
+     *        "localidad": "Engativá",
+     *        "photos": ["http://guardianapp.test/storage/incident_photos/example.jpg"],
+     *        "created_at": "2026-04-01T14:30:00Z"
+     *      }
+     *    }
+     *  ]
+     * }
+     */
     public function index(Request $request)
     {
         // Return GeoJSON FeatureCollection
@@ -94,6 +139,29 @@ class GeoJSONController extends Controller
         ]);
     }
 
+    /**
+     * Obtener polígonos de localidades (GeoJSON).
+     * 
+     * Retorna la capa cartográfica de las localidades de la ciudad en formato `FeatureCollection` GeoJSON.
+     * Útil para renderizar los límites jurisdiccionales sociodemográficos sobre el mapa principal.
+     * 
+     * @response {
+     *  "type": "FeatureCollection",
+     *  "features": [
+     *    {
+     *      "type": "Feature",
+     *      "properties": {
+     *        "id": 1,
+     *        "nombre": "Usaquén"
+     *      },
+     *      "geometry": {
+     *        "type": "MultiPolygon",
+     *        "coordinates": [[[[ -74.012, 4.789 ], [ -74.015, 4.792 ]]]]
+     *      }
+     *    }
+     *  ]
+     * }
+     */
     public function localidades()
     {
         $localidades = DB::select("SELECT id, nombre, ST_AsGeoJSON(geom) as geometry FROM localidades");
