@@ -76,7 +76,7 @@
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"></path></svg>
                             Mapa de Calor
                         </span>
-                        <input type="checkbox" id="heatmap-toggle" style="width: 16px; height: 16px; cursor: pointer; accent-color: #dc2626;">
+                        <input type="checkbox" id="heatmap-toggle" checked style="width: 16px; height: 16px; cursor: pointer; accent-color: #dc2626;">
                     </label>
                 </div>
 
@@ -859,7 +859,7 @@
 
 @push('scripts')
     <!-- Leaflet.heat plugin -->
-    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+    <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js" defer></script>
     <script>
         let map;
         let markersLayer;

@@ -384,6 +384,7 @@
         input[type="text"],
         input[type="email"],
         input[type="password"],
+        input[type="date"],
         select,
         textarea {
             width: 100%;
@@ -397,9 +398,15 @@
             transition: border-color 0.2s;
         }
 
+        input[type="date"]::-webkit-datetime-edit {
+            padding: 0;
+            display: flex;
+        }
+
         input[type="text"]:focus,
         input[type="email"]:focus,
         input[type="password"]:focus,
+        input[type="date"]:focus,
         select:focus,
         textarea:focus {
             outline: none;
