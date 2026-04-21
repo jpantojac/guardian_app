@@ -3,7 +3,8 @@
 @section('main-class', '')
 
 @section('content')
-    <div id="map"></div>
+    {{-- Placeholder de fondo para mejorar el LCP (Largest Contentful Paint) --}}
+    <div id="map" style="background-color: #f8fafc; background-image: radial-gradient(#e2e8f0 1px, transparent 1px); background-size: 20px 20px;"></div>
 
     <!-- Floating Report Button -->
     <div style="position: absolute; bottom: calc(var(--footer-h, 44px) + 1rem); right: 1rem; z-index: 999;">
@@ -2008,12 +2009,12 @@
 
             if (comment.user) {
                 if (comment.user.profile_photo_url) {
-                    avatarHtml = `<img src="${comment.user.profile_photo_url}" alt="${userName}" class="comment-avatar" style="object-fit: cover;">`;
+                    avatarHtml = `<img src="${comment.user.profile_photo_url}" alt="${userName}" class="comment-avatar" loading="lazy" style="object-fit: cover;">`;
                 } else if (comment.user.profile_photo_path) {
                     // Robust fallback for raw paths
                     const path = comment.user.profile_photo_path;
                     const src = path.startsWith('http') || path.startsWith('/') ? path : `/storage/${path}`;
-                    avatarHtml = `<img src="${src}" alt="${userName}" class="comment-avatar" style="object-fit: cover;">`;
+                    avatarHtml = `<img src="${src}" alt="${userName}" class="comment-avatar" loading="lazy" style="object-fit: cover;">`;
                 }
             }
 
