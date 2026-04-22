@@ -8,8 +8,9 @@
     <title>GuardianApp - Sistema Participativo de Seguridad Ciudadana</title>
     <meta name="description" content="GuardianApp es una plataforma WebGIS que permite a los ciudadanos reportar y visualizar incidentes de seguridad en tiempo real para mejorar la convivencia comunitaria.">
 
-    <!-- Preload Critical CSS -->
-    <link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" as="style">
+    <!-- Preload Critical Assets with Correct Integrity and High Priority -->
+    <link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" as="style" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" fetchpriority="high">
+    <link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" as="script" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" fetchpriority="high">
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
 
     <!-- Leaflet CSS -->
@@ -21,9 +22,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://basemaps.cartocdn.com" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://unpkg.com">
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://basemaps.cartocdn.com">
+
+    <link rel="preload" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" as="script" fetchpriority="high">
+    
+    <!-- Preload Data API with explicit credentials to match fetch call -->
+    <link rel="preload" href="/api/geojson" as="fetch" crossorigin="use-credentials">
+
+    
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+    
+    <!-- Leaflet.markercluster -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" defer></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
@@ -347,6 +364,7 @@
             /* Leave room for navbar (top) + fixed footer (bottom) */
             height: calc(100vh - var(--navbar-h) - var(--footer-h));
             width: 100%;
+            background-color: #f8f9fa; /* Base color to improve FCP/LCP */
         }
 
         @media (max-width: 600px) {
@@ -828,8 +846,7 @@
 
 
     </script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+
     <script> // Profile dropdown menu toggle
 
         function toggleProfileMenu() {
