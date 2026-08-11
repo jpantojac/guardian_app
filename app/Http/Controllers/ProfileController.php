@@ -16,6 +16,27 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
 
+        if ($request->has('update_alerts')) {
+            $request->validate([
+                'alert_threshold' => 'required|integer|min:1',
+                'alert_timeframe_hours' => 'required|integer|min:1',
+                'alert_cooldown_hours' => 'required|integer|min:1',
+                'localidades' => 'nullable|array',
+                'categories' => 'nullable|array',
+            ]);
+
+            $user->alert_threshold = $request->alert_threshold;
+            $user->alert_timeframe_hours = $request->alert_timeframe_hours;
+            $user->alert_cooldown_hours = $request->alert_cooldown_hours;
+            $user->save();
+
+            // Sync relationships
+            $user->localidades()->sync($request->localidades ?? []);
+            $user->categories()->sync($request->categories ?? []);
+
+            return back()->with('success', 'Configuración de alertas actualizada.');
+        }
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],

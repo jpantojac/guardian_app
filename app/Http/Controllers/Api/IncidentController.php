@@ -136,7 +136,10 @@ class IncidentController extends Controller
         // Auto-assign Localidad using PostGIS
         $incident->assignLocalidad();
 
-        // Check for alerts
+        // Check for personalized alerts
+        \App\Jobs\ProcessUserAlerts::dispatch($incident);
+
+        // Check for zone alerts (legacy)
         $this->checkAlerts($incident);
 
         return response()->json($incident->load('photos'), 201);

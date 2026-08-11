@@ -16,9 +16,9 @@
                  loading="eager"
                  style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; transform: scale(1.05);">
 
-            <div id="lcp-content-box" style="text-align: center; background: #ffffff; padding: clamp(2.5rem, 6vw, 5rem); border-radius: 48px; border: 2px solid #f1f5f9; box-shadow: 0 40px 80px -15px rgba(15, 23, 42, 0.15); max-width: 90%; font-family: system-ui, -apple-system, sans-serif; position: relative; z-index: 10;">
-                <h1 id="main-lcp-title" style="font-size: clamp(3.5rem, 12vw, 6.5rem); font-weight: 900; color: #020617; margin: 0; line-height: 1; letter-spacing: -0.05em; text-shadow: 0 4px 12px rgba(0,0,0,0.05); text-rendering: optimizeLegibility;">GuardiánApp</h1>
-                <h3 style="font-size: clamp(1.2rem, 3vw, 1.8rem); color: #1e293b; margin-top: 1.5rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.5; max-width: 700px; margin-left: auto; margin-right: auto;">Plataforma Participativa para Reporte de Incidentes de Seguridad</h3>
+            <div id="lcp-content-box" style="text-align: center; background: #ffffff; padding: clamp(1.5rem, 5vw, 5rem); border-radius: 48px; border: 2px solid #f1f5f9; box-shadow: 0 40px 80px -15px rgba(15, 23, 42, 0.15); max-width: 90%; width: 100%; font-family: system-ui, -apple-system, sans-serif; position: relative; z-index: 10; overflow: hidden; word-wrap: break-word;">
+                <h1 id="main-lcp-title" style="font-size: clamp(2.2rem, 9vw, 6.5rem); font-weight: 900; color: #020617; margin: 0; line-height: 1; letter-spacing: -0.05em; text-shadow: 0 4px 12px rgba(0,0,0,0.05); text-rendering: optimizeLegibility;">GuardiánApp</h1>
+                <h3 style="font-size: clamp(1rem, 3vw, 1.8rem); color: #1e293b; margin-top: 1.5rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.5; max-width: 700px; margin-left: auto; margin-right: auto;">Plataforma Participativa para Reporte de Incidentes de Seguridad</h3>
                 <div style="margin-top: 3rem; width: 120px; height: 10px; background: #3b82f6; margin-left: auto; margin-right: auto; border-radius: 10px;"></div>
             </div>
         </div>
@@ -144,7 +144,7 @@
 
     <!-- Login/Register Modal -->
     <div id="auth-modal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 4000; align-items: center; justify-content: center;">
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 5000; align-items: center; justify-content: center;">
         <div class="card" style="width: 100%; max-width: 400px; position: relative; animation: slideUp 0.3s ease-out;">
             <button onclick="closeLoginModal()" aria-label="Cerrar modal de autenticación"
                 style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; color: var(--text-secondary);">
@@ -287,6 +287,13 @@
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
                         @endforeach
                     </select>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label for="incident_date">Fecha y Hora del Incidente</label>
+                    <input type="datetime-local" id="incident_date" name="incident_date" required
+                        style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.375rem;">
+                    <small style="color: var(--text-secondary); display: block; margin-top: 0.25rem;">Solo puedes reportar incidentes ocurridos en las últimas 24 horas.</small>
                 </div>
 
                 <div style="margin-bottom: 1.5rem;">
@@ -920,7 +927,7 @@
         let reportMarker = null;
 
         // Start fetching data immediately to parallelize with script parsing/map init
-        const dataPromise = fetch('/api/geojson', { credentials: 'include' }).then(r => r.json());
+        const dataPromise = fetch(`/api/geojson?_t=${Date.now()}`, { credentials: 'include', cache: 'no-store' }).then(r => r.json());
 
         document.addEventListener('DOMContentLoaded', function () {
             map = L.map('map', {
@@ -1405,6 +1412,22 @@
         // Report Modal Functions
         function openReportModal() {
             document.getElementById('report-modal').style.display = 'flex';
+            
+            // Set max and min datetime for incident_date
+            const dateInput = document.getElementById('incident_date');
+            if (dateInput) {
+                const now = new Date();
+                const past24h = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+                
+                const formatDateTime = (date) => {
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+                };
+
+                dateInput.max = formatDateTime(now);
+                dateInput.min = formatDateTime(past24h);
+                if (!dateInput.value) dateInput.value = formatDateTime(now);
+            }
 
             // Initialize map after modal is visible
             setTimeout(() => {

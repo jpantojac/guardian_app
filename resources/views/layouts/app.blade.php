@@ -45,6 +45,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
 
+    <!-- TomSelect CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.css" rel="stylesheet">
+
     <style>
         :root {
             --primary: #0A0A0A;
@@ -293,7 +296,7 @@
 
             /* Show profile avatar on desktop too */
             .desktop-nav {
-                display: none !important;
+                display: flex !important;
             }
 
             .profile-avatar {
@@ -301,7 +304,7 @@
             }
 
             .mobile-login {
-                display: block !important;
+                display: none !important;
             }
 
             .navbar-brand span {
@@ -415,6 +418,7 @@
         input[type="text"],
         input[type="email"],
         input[type="password"],
+        input[type="number"],
         input[type="date"],
         select,
         textarea {
@@ -437,6 +441,7 @@
         input[type="text"]:focus,
         input[type="email"]:focus,
         input[type="password"]:focus,
+        input[type="number"]:focus,
         input[type="date"]:focus,
         select:focus,
         textarea:focus {
@@ -578,6 +583,31 @@
 </head>
 
 <body>
+    @if(session('success'))
+        <div class="alert alert-success" id="flash-message-success" style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+            <span>{{ session('success') }}</span>
+            <button onclick="document.getElementById('flash-message-success').remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; padding: 0;">&times;</button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger" id="flash-message-error" style="background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+            <span>{{ session('error') }}</span>
+            <button onclick="document.getElementById('flash-message-error').remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; padding: 0;">&times;</button>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert alert-danger" id="flash-message-errors" style="background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+            <ul style="margin: 0; padding-left: 1.5rem; flex: 1;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button onclick="document.getElementById('flash-message-errors').remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit; padding: 0;">&times;</button>
+        </div>
+    @endif
+
     <nav class="navbar"><a href="/" class="navbar-brand" aria-label="GuardianApp Inicio"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                 xmlns:xlink="http://www.w3.org/1999/xlink" width="30px" height="33px" viewBox="0 0 30 33" version="1.1">
                 <g id="surface1">
@@ -600,12 +630,15 @@
             </svg><span>GuardianApp</span></a><!-- Desktop Navigation -->
         <div class="nav-links desktop-nav" role="navigation"><a href="/">Mapa</a>
             @auth
-            @if(auth()->user()->role === 'admin' || auth()->user()->role === 'moderator')
-                <a href="{{ route('admin.dashboard') }}" style="color: var(--primary); font-weight: 600;">Panel Admin</a>
-            @endif
-            <span class="user-name">{{ auth()->user()->name }}</span>
-            <form action="{{ route('logout') }}" method="POST" style="display: inline;">@csrf <button type="submit"
-        class="btn btn-logout" aria-label="Cerrar sesión">Salir</button></form>@else <button onclick="openLoginModal()"
+
+            <a href="{{ route('notifications.index') }}" title="Notificaciones" style="position: relative; color: var(--text-secondary); display: flex; align-items: center; justify-content: center;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                @if(auth()->user()->unreadNotifications->count() > 0)
+                    <span style="position: absolute; top: -8px; right: -8px; background: var(--danger); color: white; border-radius: 50%; font-size: 0.65rem; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-weight: bold;">{{ auth()->user()->unreadNotifications->count() }}</span>
+                @endif
+            </a>
+
+@else <button onclick="openLoginModal()"
                     class="btn-login">Iniciar Sesión</button>@endauth
         </div><!-- Mobile Profile Avatar -->@auth <div class="profile-avatar" onclick="toggleProfileMenu()" role="button" aria-haspopup="true" aria-expanded="false" aria-label="Menú de perfil">
             <div class="avatar-circle">
@@ -660,14 +693,7 @@
         </div>@else <button onclick="openLoginModal()" class="btn-login mobile-login">Iniciar Sesión</button>@endauth
     </nav>
     <main class="@yield('main-class', 'with-padding')">
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-        </div>@endif
-        @if(session('error'))
-            <div class="alert alert-danger" style="background: #fee2e2; color: #991b1b; border: 2px solid #f87171;">
-                {{ session('error') }}
-        </div>@endif
+
         @yield('content')
     </main>
     
@@ -720,7 +746,10 @@
                         Personales </button><button type="button" class="tab-btn"
                         onclick="switchProfileTab('profile-history')"
                         style="padding: 0.75rem 1rem; background: none; border: none; font-weight: 500; cursor: pointer; color: var(--text-secondary);">Historial
-                        de Reportes </button></div><!-- Profile Data Tab -->
+                        de Reportes </button><button type="button" class="tab-btn"
+                        onclick="switchProfileTab('profile-alerts')"
+                        style="padding: 0.75rem 1rem; background: none; border: none; font-weight: 500; cursor: pointer; color: var(--text-secondary);">Alertas
+                        Personales </button></div><!-- Profile Data Tab -->
                 <div id="profile-data" class="tab-content" style="display: block;">
                     <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">@csrf
                         @method('PUT') <div style="margin-bottom: 2rem; display: flex; align-items: center; gap: 1.5rem;">
@@ -788,7 +817,65 @@
                                 onclick="closeProfileModal()" class="btn btn-secondary">Cancelar</button><button
                                 type="submit" class="btn btn-primary">Guardar Cambios</button></div>
                     </form>
-                </div><!-- Incidents History Tab -->
+                </div>
+                <!-- Alerts Configuration Tab -->
+                <div id="profile-alerts" class="tab-content" style="display: none;">
+                    <form action="{{ route('profile.update') }}" method="POST">@csrf
+                        @method('PUT')
+                        <input type="hidden" name="update_alerts" value="1">
+                        
+                        @php
+                            $allCategories = \App\Models\Category::all();
+                            $allLocalidades = \App\Models\Localidad::orderBy('nombre')->get();
+                            $userCategories = auth()->user()->categories->pluck('id')->toArray();
+                            $userLocalidades = auth()->user()->localidades->pluck('id')->toArray();
+                        @endphp
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Mis Localidades de Interés</label>
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Selecciona las localidades de las cuales deseas recibir alertas.</p>
+                            <select name="localidades[]" id="alert_localidades" multiple placeholder="Seleccionar localidades..." class="tom-select">
+                                @foreach($allLocalidades as $loc)
+                                    <option value="{{ $loc->id }}" {{ in_array($loc->id, $userLocalidades) ? 'selected' : '' }}>{{ $loc->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Mis Delitos de Interés</label>
+                            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Filtra qué tipos de incidentes quieres que se te notifiquen.</p>
+                            <select name="categories[]" id="alert_categories" multiple placeholder="Seleccionar categorías..." class="tom-select">
+                                @foreach($allCategories as $cat)
+                                    <option value="{{ $cat->id }}" {{ in_array($cat->id, $userCategories) ? 'selected' : '' }}>{{ $cat->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div style="border-top: 1px solid var(--border-color); margin: 1.5rem 0; padding-top: 1.5rem;">
+                            <h3 style="margin-top: 0; font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Parámetros de Alerta</h3>
+                            
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 100px; margin-bottom: 1rem; display: flex; flex-direction: column; justify-content: flex-end;">
+                                    <label for="alert_threshold" style="font-size: 0.875rem; margin-bottom: 0.5rem;">Cantidad de Incidentes</label>
+                                    <input type="number" id="alert_threshold" name="alert_threshold" value="{{ auth()->user()->alert_threshold ?? 10 }}" min="1" style="width: 100%; box-sizing: border-box; margin-top: auto;">
+                                </div>
+                                <div style="flex: 1; min-width: 100px; margin-bottom: 1rem; display: flex; flex-direction: column; justify-content: flex-end;">
+                                    <label for="alert_timeframe_hours" style="font-size: 0.875rem; margin-bottom: 0.5rem;">En cuántas Horas</label>
+                                    <input type="number" id="alert_timeframe_hours" name="alert_timeframe_hours" value="{{ auth()->user()->alert_timeframe_hours ?? 3 }}" min="1" style="width: 100%; box-sizing: border-box; margin-top: auto;">
+                                </div>
+                                <div style="flex: 1; min-width: 100px; margin-bottom: 1rem; display: flex; flex-direction: column; justify-content: flex-end;">
+                                    <label for="alert_cooldown_hours" style="font-size: 0.875rem; margin-bottom: 0.5rem;">Periodo de Enfriamiento (Horas)</label>
+                                    <input type="number" id="alert_cooldown_hours" name="alert_cooldown_hours" value="{{ auth()->user()->alert_cooldown_hours ?? 12 }}" min="1" style="width: 100%; box-sizing: border-box; margin-top: auto;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 1rem;"><button type="button"
+                                onclick="closeProfileModal()" class="btn btn-secondary">Cancelar</button><button
+                                type="submit" class="btn btn-primary">Guardar Configuración</button></div>
+                    </form>
+                </div>
+                <!-- Incidents History Tab -->
                 <div id="profile-history" class="tab-content" style="display: none;">
                     <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
                         <div style="flex: 1; min-width: 140px;"><label style="font-size: 0.75rem;">Fecha
@@ -1187,6 +1274,26 @@
             if (e.target === this) closeImageLightbox();
         });
     </script>
+    
+    <!-- TomSelect JS -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('alert_localidades')) {
+                new TomSelect('#alert_localidades', {
+                    plugins: ['remove_button'],
+                    placeholder: 'Seleccionar localidades...'
+                });
+            }
+            if (document.getElementById('alert_categories')) {
+                new TomSelect('#alert_categories', {
+                    plugins: ['remove_button'],
+                    placeholder: 'Seleccionar categorías...'
+                });
+            }
+        });
+    </script>
+
     @stack('scripts')
 </body>
 

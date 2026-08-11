@@ -25,6 +25,9 @@ class User extends Authenticatable
         'is_active',
         'consent_at',
         'profile_photo_path',
+        'alert_threshold',
+        'alert_timeframe_hours',
+        'alert_cooldown_hours',
     ];
 
     /**
@@ -60,6 +63,21 @@ class User extends Authenticatable
     public function auditLogs()
     {
         return $this->hasMany(AuditLog::class);
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    public function localidades()
+    {
+        return $this->belongsToMany(Localidad::class);
+    }
+
+    public function alertLogs()
+    {
+        return $this->hasMany(UserAlertLog::class);
     }
 
     // Role helpers

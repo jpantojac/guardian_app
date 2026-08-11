@@ -38,8 +38,8 @@ class DemoIncidentSeeder extends Seeder
         // Limpiar para evitar ruido azul uniforme
         DB::statement('TRUNCATE incidents RESTART IDENTITY CASCADE');
 
-        // Cantidad de incidentes a crear agrupados
-        $amount = 2500; 
+        // Cantidad de incidentes a crear agrupados (por defecto 2500, o lo que diga N)
+        $amount = (int) env('N', 2500); 
 
         $this->command->info("Generando {$amount} incidentes agrupados en hotspots para la demo...");
 

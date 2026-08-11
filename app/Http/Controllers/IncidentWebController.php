@@ -57,6 +57,9 @@ class IncidentWebController extends Controller
             // Auto-assign localidad
             $incident->assignLocalidad();
 
+            // Trigger personalized alerts job
+            \App\Jobs\ProcessUserAlerts::dispatch($incident);
+
             // Handle photos
             if ($request->hasFile('evidence_photos')) {
                 foreach ($request->file('evidence_photos') as $index => $photo) {
@@ -76,7 +79,7 @@ class IncidentWebController extends Controller
             }
 
             DB::commit();
-            return redirect('/')->with('success', 'Incidente reportado exitosamente');
+            return redirect('/')->with('success', '¡Incidente reportado exitosamente!');
 
         } catch (\Throwable $e) {
             DB::rollBack();
