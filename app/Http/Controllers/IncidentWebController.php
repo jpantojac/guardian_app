@@ -21,6 +21,7 @@ class IncidentWebController extends Controller
     {
         $request->validate([
             'category_id' => 'required|exists:categories,id',
+            'incident_date' => 'required|date|before_or_equal:now|after_or_equal:-24 hours',
             'description' => 'nullable|string',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
@@ -43,6 +44,7 @@ class IncidentWebController extends Controller
             $incident = new Incident();
             $incident->user_id = auth()->id();
             $incident->category_id = $request->category_id;
+            $incident->incident_date = \Carbon\Carbon::parse($request->incident_date, 'America/Bogota')->setTimezone('UTC');
             $incident->description = $request->description;
             $incident->location = DB::raw("ST_SetSRID(ST_MakePoint($lng, $lat), 4326)");
             $incident->location_description = $request->location_description;

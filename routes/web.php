@@ -19,6 +19,8 @@ Route::get('/register', [AuthWebController::class, 'showRegister'])->name('regis
 Route::post('/register', [AuthWebController::class, 'register']);
 
 // Protected routes
+Route::get('/api/incidents/{incident}', [\App\Http\Controllers\Api\IncidentController::class, 'show']);
+
 Route::middleware('auth')->group(function () {
     Route::get('/report', [IncidentWebController::class, 'create'])->name('report.create');
     Route::post('/report', [IncidentWebController::class, 'store'])->name('report.store');
@@ -30,7 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/incidents', [\App\Http\Controllers\ProfileController::class, 'incidents'])->name('profile.incidents');
 
     // Internal API routes (using Web Session)
-    Route::get('/api/incidents/{incident}', [\App\Http\Controllers\Api\IncidentController::class, 'show']);
+    // Removed API route from here
 });
 
 // Admin routes

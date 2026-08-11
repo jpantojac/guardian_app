@@ -76,6 +76,7 @@ class SeedTodayIncidents extends Command
                 'description' => 'Reporte en vivo inyectado por consola durante la demo.',
                 'location' => DB::raw("ST_SetSRID(ST_MakePoint($lng, $lat), 4326)"),
                 'status' => 'reported',
+                'incident_date' => $date,
                 'created_at' => $date,
                 'updated_at' => $date,
             ]);

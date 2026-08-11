@@ -4,7 +4,7 @@
 
 @section('content')
     {{-- Placeholder de alta prioridad para LCP (Indispensable para < 2.5s) --}}
-    <div id="map-lcp-wrapper" style="position: relative; width: 100%; height: calc(100vh - 120px); min-height: 500px; background-color: #f1f5f9; overflow: hidden;">
+    <div id="map-lcp-wrapper" style="position: relative; width: 100%; height: calc(100vh - var(--navbar-h) - var(--footer-h)); min-height: 500px; background-color: #f1f5f9; overflow: hidden;">
         {{-- Capa de Imagen LCP: Ocupa el 100% para garantizar que sea el elemento más grande --}}
         <div id="map-lcp-layer" style="position: absolute; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; transition: opacity 1.5s ease-in-out; pointer-events: all; will-change: opacity;">
             
@@ -36,7 +36,7 @@
     </style>
 
     <!-- Floating Report Button -->
-    <div style="position: absolute; bottom: calc(var(--footer-h, 44px) + 1rem); right: 1rem; z-index: 999;">
+    <div style="position: absolute; bottom: calc(var(--footer-h, 44px) + 1rem); right: 1rem; z-index: 1050;">
         @auth
             <button onclick="openReportModal()" class="map-fab large" title="Reportar Incidente" aria-label="Abrir modal para reportar incidente">
                 <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -70,8 +70,8 @@
 
             <div id="filter-content">
                 <!-- Time Filter -->
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">Período de
+                <div style="margin-bottom: 0.75rem;">
+                    <label style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem; display: block;">Período de
                         tiempo</label>
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         <button class="filter-btn time-filter" data-hours="1">1 hora</button>
@@ -81,8 +81,8 @@
                 </div>
 
                 <!-- Distance Filter -->
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <div style="margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
                         <label style="font-size: 0.875rem; font-weight: 600; display: block; margin: 0;">Radio de
                             búsqueda</label>
                         <span id="distance-value" style="font-size: 0.875rem; font-weight: 600; color: var(--primary);">2
@@ -94,14 +94,14 @@
                         <span style="font-size: 0.625rem; color: var(--text-secondary);">40 km</span>
                     </div>
                     <div id="location-status"
-                        style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem; display: none;">
+                        style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem; display: none;">
                         <span id="location-message">📍 Detectando ubicación...</span>
                     </div>
                 </div>
 
                 <!-- Heatmap Toggle (Citizen Prevention) -->
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff5f5; padding: 0.5rem; border-radius: 0.375rem; border: 1px solid #fca5a5;">
+                <div style="margin-bottom: 0.75rem;">
+                    <label style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff5f5; padding: 0.25rem 0.5rem; border-radius: 0.375rem; border: 1px solid #fca5a5;">
                         <span style="font-size: 0.875rem; font-weight: 600; color: #dc2626; display: flex; align-items: center; gap: 0.25rem;">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"></path></svg>
                             Mapa de Calor
@@ -111,8 +111,8 @@
                 </div>
 
                 <!-- Category Filter -->
-                <div style="margin-bottom: 1rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <div style="margin-bottom: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
                         <label style="font-size: 0.875rem; font-weight: 600; display: block; margin: 0;">Categorías</label>
                         <label
                             style="font-size: 0.75rem; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
@@ -120,7 +120,7 @@
                             Todos
                         </label>
                     </div>
-                    <div id="category-filters" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <div id="category-filters" style="display: flex; flex-direction: column; gap: 0.15rem;">
                         <!-- Categories will be loaded dynamically -->
                     </div>
                 </div>
@@ -549,7 +549,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem;
+            padding: 0.25rem 0.5rem;
             border-radius: 0.375rem;
             cursor: pointer;
             transition: background 0.2s;

@@ -50,11 +50,11 @@ class ProfileController extends Controller
         }
 
         if ($request->start_date) {
-            $query->whereDate('created_at', '>=', $request->start_date);
+            $query->whereDate('incident_date', '>=', $request->start_date);
         }
 
         if ($request->end_date) {
-            $query->whereDate('created_at', '<=', $request->end_date);
+            $query->whereDate('incident_date', '<=', $request->end_date);
         }
 
         $incidents = $query->latest()->get();

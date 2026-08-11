@@ -27,16 +27,16 @@ class DashboardController extends Controller
         $query = Incident::query();
 
         if ($year) {
-            $query->whereYear('created_at', $year);
+            $query->whereYear('incident_date', $year);
         }
         if ($month) {
-            $query->whereMonth('created_at', $month);
+            $query->whereMonth('incident_date', $month);
         }
         if ($startDate) {
-            $query->whereDate('created_at', '>=', $startDate);
+            $query->whereDate('incident_date', '>=', $startDate);
         }
         if ($endDate) {
-            $query->whereDate('created_at', '<=', $endDate);
+            $query->whereDate('incident_date', '<=', $endDate);
         }
         if (!empty($selectedCategories)) {
             $query->whereIn('category_id', $selectedCategories);
@@ -44,16 +44,16 @@ class DashboardController extends Controller
 
         // Stats
         $totalIncidents = (clone $query)->count();
-        $incidentsToday = (clone $query)->whereDate('created_at', Carbon::today())->count();
+        $incidentsToday = (clone $query)->whereDate('incident_date', Carbon::today())->count();
         $totalUsers = User::count();
         $activeUsers = User::where('is_active', true)->count();
         
         // Incidents by category 
         $incidentsByCategory = \App\Models\Category::withCount(['incidents' => function($q) use ($year, $month, $startDate, $endDate, $selectedCategories) {
-            if ($year) $q->whereYear('created_at', $year);
-            if ($month) $q->whereMonth('created_at', $month);
-            if ($startDate) $q->whereDate('created_at', '>=', $startDate);
-            if ($endDate) $q->whereDate('created_at', '<=', $endDate);
+            if ($year) $q->whereYear('incident_date', $year);
+            if ($month) $q->whereMonth('incident_date', $month);
+            if ($startDate) $q->whereDate('incident_date', '>=', $startDate);
+            if ($endDate) $q->whereDate('incident_date', '<=', $endDate);
             if (!empty($selectedCategories)) $q->whereIn('category_id', $selectedCategories);
         }])
         ->get()
@@ -75,7 +75,7 @@ class DashboardController extends Controller
         if ($month || ($startDate && $endDate)) {
             // Specific month or explicit date range → daily
             $incidentsTrend = $trendQuery->select(
-                DB::raw('DATE(created_at) as date'),
+                DB::raw('DATE(incident_date) as date'),
                 DB::raw('count(*) as count')
             )
             ->groupBy('date')
@@ -84,13 +84,13 @@ class DashboardController extends Controller
         } else {
             // No month filter — check how many distinct months exist in the result
             $monthCount = (clone $trendQuery)
-                ->selectRaw("COUNT(DISTINCT TO_CHAR(created_at, 'YYYY-MM')) as cnt")
+                ->selectRaw("COUNT(DISTINCT TO_CHAR(incident_date, 'YYYY-MM')) as cnt")
                 ->value('cnt');
 
             if ($monthCount <= 1) {
                 // Only one month (or empty) → show daily breakdown so the chart is useful
                 $incidentsTrend = $trendQuery->select(
-                    DB::raw('DATE(created_at) as date'),
+                    DB::raw('DATE(incident_date) as date'),
                     DB::raw('count(*) as count')
                 )
                 ->groupBy('date')
@@ -99,7 +99,7 @@ class DashboardController extends Controller
             } else {
                 // Multiple months → monthly aggregation
                 $incidentsTrend = $trendQuery->select(
-                    DB::raw("TO_CHAR(created_at, 'YYYY-MM') as date"),
+                    DB::raw("TO_CHAR(incident_date, 'YYYY-MM') as date"),
                     DB::raw('count(*) as count')
                 )
                 ->groupBy('date')
@@ -110,7 +110,7 @@ class DashboardController extends Controller
 
         // Crime Clock (Incidents by Hour)
         $hourlyCounts = (clone $query)->select(
-            DB::raw('CAST(EXTRACT(HOUR FROM created_at) AS INTEGER) as hour'),
+            DB::raw('CAST(EXTRACT(HOUR FROM incident_date) AS INTEGER) as hour'),
             DB::raw('count(*) as count')
         )
         ->groupBy('hour')
@@ -140,7 +140,7 @@ class DashboardController extends Controller
             });
 
         // Available years for filter
-        $availableYears = Incident::selectRaw('EXTRACT(YEAR FROM created_at) as year')
+        $availableYears = Incident::selectRaw('EXTRACT(YEAR FROM incident_date) as year')
             ->distinct()
             ->orderBy('year', 'desc')
             ->pluck('year')

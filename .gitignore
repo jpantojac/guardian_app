@@ -26,3 +26,4 @@ Thumbs.db
 # GeoSpatial Source data
 /shapes
 /*.sql
+/docs/*

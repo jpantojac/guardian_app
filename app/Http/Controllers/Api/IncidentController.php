@@ -61,7 +61,7 @@ class IncidentController extends Controller
 
         // Time filters
         if ($request->has('days')) {
-            $query->where('created_at', '>=', now()->subDays($request->days));
+            $query->where('incident_date', '>=', now()->subDays($request->days));
         }
 
         return $query->latest()->paginate(20);

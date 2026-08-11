@@ -830,15 +830,22 @@
 
         function getTimeAgo(date) {
             const now = new Date();
-            const diffMs = now - date;
-            const diffMins = Math.floor(diffMs / 60000);
+            let diffMs = now - date;
+            if (diffMs < 0) diffMs = Math.abs(diffMs); // Fix negative times for existing demo data
+            
+            const diffMinsTotal = Math.floor(diffMs / 60000);
             const diffHours = Math.floor(diffMs / 3600000);
             const diffDays = Math.floor(diffMs / 86400000);
 
-            if (diffMins < 60) {
-                return `Hace ${diffMins} ${diffMins === 1 ? 'minuto' : 'minutos'}`;
+            if (diffMinsTotal < 60) {
+                return `Hace ${diffMinsTotal} ${diffMinsTotal === 1 ? 'minuto' : 'minutos'}`;
             } else if (diffHours < 24) {
-                return `Hace ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`;
+                const remainingMins = diffMinsTotal % 60;
+                let text = `Hace ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`;
+                if (remainingMins > 0) {
+                    text += ` y ${remainingMins} ${remainingMins === 1 ? 'minuto' : 'minutos'}`;
+                }
+                return text;
             } else {
                 return `Hace ${diffDays} ${diffDays === 1 ? 'día' : 'días'}`;
             }

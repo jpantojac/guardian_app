@@ -48,7 +48,7 @@ class CommentController extends Controller
     public function toggleReaction(Request $request, Comment $comment)
     {
         $request->validate([
-            'type' => 'required|in:like,support,angry,useful',
+            'type' => 'required|in:support,sad,angry,worried,useful',
         ]);
 
         $user = auth()->user();

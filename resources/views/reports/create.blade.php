@@ -36,6 +36,13 @@
             </div>
 
             <div style="margin-bottom: 1.5rem;">
+                <label for="incident_date" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Fecha y Hora del Incidente</label>
+                <input type="datetime-local" id="incident_date" name="incident_date" required
+                    style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 0.375rem;">
+                <small style="color: var(--text-secondary); display: block; margin-top: 0.25rem;">Solo puedes reportar incidentes ocurridos en las últimas 24 horas.</small>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
                 <label for="category_id">Categoría</label>
                 <select id="category_id" name="category_id" required>
                     @foreach($categories as $category)
@@ -127,6 +134,22 @@
                 }
                 document.getElementById('latitude').value = lat;
                 document.getElementById('longitude').value = lng;
+            }
+
+            // Validación dinámica de fecha y hora
+            const dateInput = document.getElementById('incident_date');
+            if (dateInput) {
+                const now = new Date();
+                const past24h = new Date(now.getTime() - (24 * 60 * 60 * 1000));
+                
+                const formatDateTime = (date) => {
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+                };
+
+                dateInput.max = formatDateTime(now);
+                dateInput.min = formatDateTime(past24h);
+                dateInput.value = formatDateTime(now); // Por defecto, hora actual
             }
         });
     </script>

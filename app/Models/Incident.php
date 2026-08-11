@@ -12,6 +12,7 @@ class Incident extends Model
     protected $fillable = [
         'user_id',
         'category_id',
+        'incident_date',
         'description',
         'location', // Geometry
         'location_description',
@@ -24,6 +25,7 @@ class Incident extends Model
 
     protected $casts = [
         'verified_at' => 'datetime',
+        'incident_date' => 'datetime',
         'allow_comments' => 'boolean',
     ];
 

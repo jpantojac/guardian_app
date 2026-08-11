@@ -115,12 +115,91 @@
     <div id="adminMap" style="height: 500px; width: 100%; border-radius: 0.5rem; z-index: 1;"></div>
 </div>
 
+<!-- Data Table -->
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-bold text-gray-800">Detalle Analítico de Incidentes</h3>
+    </div>
+    <div class="table-responsive border border-gray-200 rounded-lg" style="max-height: 65vh; overflow: auto; position: relative;">
+        <table id="incidents-table" class="display w-full text-sm text-left">
+            <thead>
+                <tr>
+                    <th class="border-b-2 p-2 w-10 text-center">#</th>
+                    <th class="border-b-2 p-2">Fecha del Incidente</th>
+                    <th class="border-b-2 p-2">Categoría</th>
+                    <th class="border-b-2 p-2">Ubicación / Descripción</th>
+                    <th class="border-b-2 p-2">Detalle</th>
+                    <th class="border-b-2 p-2">Nivel de Privacidad</th>
+                    <th class="border-b-2 p-2">Localidad</th>
+                </tr>
+                <tr class="filters-row">
+                    <th class="border-b-2 p-2 w-10 text-center"></th>
+                    <th class="border-b-2 p-2" data-idx="1"></th>
+                    <th class="border-b-2 p-2" data-idx="2"></th>
+                    <th class="border-b-2 p-2" data-idx="3"></th>
+                    <th class="border-b-2 p-2" data-idx="4"></th>
+                    <th class="border-b-2 p-2" data-idx="5"></th>
+                    <th class="border-b-2 p-2" data-idx="6"></th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.default.css" rel="stylesheet">
 <!-- Leaflet MarkerCluster CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" crossorigin="anonymous">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" crossorigin="anonymous">
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-dt@1.13.7/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-buttons-dt@2.4.2/css/buttons.dataTables.min.css">
 <style>
+    /* Native Sticky Table Header */
+    #incidents-table thead {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+    }
+    #incidents-table thead th {
+        background-color: #ffffff;
+        box-shadow: inset 0 -1px 0 #e5e7eb;
+        border-bottom: none !important;
+    }
+    
+    /* DataTables Tailwind Fixes */
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 1rem;
+    }
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        padding: 0.25rem 0.5rem;
+        margin-left: 0.5rem;
+        outline: none;
+    }
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 1px #4f46e5;
+    }
+    .dataTables_wrapper .dt-buttons {
+        margin-bottom: 1rem;
+    }
+    .dataTables_wrapper .dt-buttons .dt-button {
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        padding: 0.25rem 0.75rem;
+        color: #374151;
+        font-weight: 500;
+        margin-right: 0.25rem;
+    }
+    .dataTables_wrapper .dt-buttons .dt-button:hover {
+        background: #e5e7eb;
+    }
+    
     /* Tailwind adjustments for Tom Select */
     .ts-control {
         border-color: #d1d5db;
@@ -143,6 +222,16 @@
 @endpush
 
 @push('scripts')
+<!-- DataTables JS and dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net-buttons@2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net-buttons@2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/datatables.net-buttons@2.4.2/js/buttons.print.min.js"></script>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <!-- Leaflet.heat plugin -->
 <script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
@@ -389,6 +478,9 @@
                     max: 3.0,
                     gradient: {0.4: 'blue', 0.6: 'cyan', 0.7: 'lime', 0.8: 'yellow', 1.0: 'red'}
                 }).addTo(heatLayerGroup);
+                
+                // Update DataTable
+                updateTableData(data.features);
             });
 
         // Fetch Localities Polygons
@@ -398,26 +490,134 @@
                 L.geoJSON(data, {
                     style: function (feature) {
                         return {
-                            color: '#4f46e5',
-                            weight: 2,
-                            opacity: 0.5,
-                            fillColor: '#4f46e5',
-                            fillOpacity: 0.05
+                            color: '#64748b',
+                            weight: 1.5,
+                            opacity: 0.6,
+                            fillOpacity: 0.05,
+                            dashArray: '4'
                         };
                     },
-                    onEachFeature: function (feature, layer) {
-                        layer.bindTooltip(`<b>${feature.properties.nombre}</b>`, {
-                            direction: 'center',
-                            className: 'bg-white border-0 shadow-sm rounded text-xs font-semibold'
-                        });
+                    onEachFeature: function(feature, layer) {
+                        if (feature.properties && feature.properties.nombre) {
+                            layer.bindTooltip(feature.properties.nombre, {
+                                permanent: true, 
+                                direction: 'center', 
+                                className: 'bg-transparent border-0 shadow-none text-gray-500 font-semibold text-xs',
+                                opacity: 0.7
+                            });
+                        }
                     }
                 }).addTo(localidadesLayerGroup);
             });
+
+        let dataTableInstance = null;
+
+        function updateTableData(features) {
+            try {
+                if (!dataTableInstance) {
+                dataTableInstance = $('#incidents-table').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
+                    pageLength: 10,
+                    orderCellsTop: true,
+                    language: {
+                        search: "Buscar:",
+                        lengthMenu: "Mostrar _MENU_ registros",
+                        info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                        infoEmpty: "Mostrando 0 a 0 de 0 registros",
+                        infoFiltered: "(filtrado de _MAX_ registros totales)",
+                        paginate: {
+                            first: "Primero",
+                            last: "Último",
+                            next: "Siguiente",
+                            previous: "Anterior"
+                        },
+                        zeroRecords: "No se encontraron incidentes"
+                    },
+                    order: [[1, 'desc']],
+                    columnDefs: [
+                        {
+                            searchable: false,
+                            orderable: false,
+                            targets: 0,
+                            className: 'text-center font-bold text-gray-500 bg-gray-50 border-r border-gray-100'
+                        }
+                    ],
+                    initComplete: function () {
+                        this.api().columns().every(function () {
+                            let column = this;
+                            if (column.index() === 0) return;
+                            
+                            let cell = $('.filters-row th[data-idx="' + column.index() + '"]');
+                            $('<select class="w-full border-gray-300 rounded text-xs py-1 filter-select" data-column-index="' + column.index() + '"><option value="">Todos</option></select>')
+                                .appendTo(cell.empty());
+                        });
+                    }
+                });
+
+                $(document).on('change', '.filter-select', function () {
+                    if (!dataTableInstance) return;
+                    let columnIdx = $(this).data('column-index');
+                    let val = $.fn.dataTable.util.escapeRegex($(this).val());
+                    
+                    $('.filter-select[data-column-index="' + columnIdx + '"]').val($(this).val());
+                    dataTableInstance.column(columnIdx).search(val ? '^' + val + '$' : '', true, false).draw();
+                });
+
+                dataTableInstance.on('order.dt search.dt', function () {
+                    let i = 1;
+                    dataTableInstance.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
+                        this.data(i++);
+                    });
+                });
+            }
+
+            const tableData = features.map(f => {
+                const props = f.properties;
+                const dateObj = new Date(props.incident_date || props.created_at);
+                const formattedDate = dateObj.toLocaleString('es-CO');
+
+                return [
+                    '', // placeholder for index
+                    formattedDate,
+                    props.category || 'Otro',
+                    props.location_description || 'Sin descripción',
+                    props.description || 'Sin detalle',
+                    props.privacy_level || 'Público',
+                    props.localidad || 'N/A'
+                ];
+            });
+
+            dataTableInstance.clear();
+            dataTableInstance.rows.add(tableData);
+            dataTableInstance.draw();
             
-        // Setup placeholder for future WebSocket listener
-        // window.Echo.channel('incidents').listen('IncidentReported', (e) => {
-        //   // Update both layers dynamically
-        // });
+            // Re-populate the column filters based on new data
+            if (dataTableInstance) {
+                dataTableInstance.columns().every(function () {
+                    let column = this;
+                    if (column.index() === 0) return;
+                    
+                    let selects = $('.filter-select[data-column-index="' + column.index() + '"]');
+                    if(selects.length === 0) return;
+                    
+                    let currentVal = selects.first().val();
+                    selects.empty().append('<option value="">Todos</option>');
+                    
+                    column.data().unique().sort().each(function (d, j) {
+                        if (d) {
+                            selects.append('<option value="' + d + '">' + d + '</option>');
+                        }
+                    });
+                    selects.val(currentVal);
+                });
+            }
+            
+            } catch (err) {
+                $('#incidents-table').parent().prepend('<div class="bg-red-100 text-red-700 p-3 rounded mb-3">Error cargando tabla: ' + err.message + '</div>');
+                console.error('DataTables Error:', err);
+            }
+        }
     });
 </script>
 @endpush

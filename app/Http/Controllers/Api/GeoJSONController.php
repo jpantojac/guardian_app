@@ -65,21 +65,21 @@ class GeoJSONController extends Controller
         $query = Incident::query();
 
         if ($request->has('days')) {
-            $query->where('created_at', '>=', now()->subDays($request->days));
+            $query->where('incident_date', '>=', now()->subDays($request->days));
         }
         
         // Admin filters support
         if ($request->filled('year')) {
-            $query->whereYear('created_at', $request->year);
+            $query->whereYear('incident_date', $request->year);
         }
         if ($request->filled('month')) {
-            $query->whereMonth('created_at', $request->month);
+            $query->whereMonth('incident_date', $request->month);
         }
         if ($request->filled('start_date')) {
-            $query->whereDate('created_at', '>=', $request->start_date);
+            $query->whereDate('incident_date', '>=', $request->start_date);
         }
         if ($request->filled('end_date')) {
-            $query->whereDate('created_at', '<=', $request->end_date);
+            $query->whereDate('incident_date', '<=', $request->end_date);
         }
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
@@ -101,6 +101,7 @@ class GeoJSONController extends Controller
             'location_description',
             'privacy_level',
             'status',
+            'incident_date',
             'created_at',
             DB::raw("ST_AsGeoJSON(location) as geometry")
         )
@@ -128,6 +129,7 @@ class GeoJSONController extends Controller
                     'reporter_name' => $incident->reporter_name, // Uses accessor
                     'localidad' => $incident->localidad ? $incident->localidad->nombre : null,
                     'photos' => $incident->photos->map(fn($p) => $p->url),
+                    'incident_date' => $incident->incident_date ? $incident->incident_date->toIso8601String() : null,
                     'created_at' => $incident->created_at->toIso8601String(),
                 ]
             ];
