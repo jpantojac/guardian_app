@@ -44,6 +44,7 @@ class IncidentSeeder extends Seeder
                 'description' => 'Reporte de prueba generado automáticamente.',
                 'location' => DB::raw("ST_SetSRID(ST_MakePoint($lng, $lat), 4326)"),
                 'status' => 'reported',
+                'incident_date' => $date,
                 'created_at' => $date,
                 'updated_at' => $date,
             ]);
