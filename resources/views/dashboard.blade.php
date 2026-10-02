@@ -233,6 +233,12 @@
                     <input type="password" name="password_confirmation" required
                         style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 0.5rem; font-size: 0.875rem;">
                 </div>
+                <div style="margin-bottom: 1.5rem; font-size: 0.875rem;">
+                    <label style="display: flex; align-items: start; gap: 0.5rem; font-weight: 400; color: var(--text-secondary);">
+                        <input type="checkbox" name="terms" required style="width: auto; margin-top: 0.25rem;">
+                        <span>Declaro que he leído y acepto los <a href="{{ route('legal.terminos') }}" target="_blank" style="color: var(--primary); text-decoration: underline;">Términos de Uso</a> y autorizo el manejo de mi información bajo la <a href="{{ route('legal.privacidad') }}" target="_blank" style="color: var(--primary); text-decoration: underline;">Política de Tratamiento de Datos Personales (Ley 1581)</a>.</span>
+                    </label>
+                </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%;">Registrarse</button>
             </form>
         </div>
@@ -268,7 +274,8 @@
                     <strong style="display: block; font-size: 0.875rem;">Importante</strong>
                     <p style="font-size: 0.8125rem; margin: 0; line-height: 1.4;">
                         El reporte voluntario de incidente debe ser real ya que es información vital para la comunidad. Por
-                        favor, reporta con responsabilidad.
+                        favor, reporta con responsabilidad.<br><br>
+                        <strong>Nota:</strong> GuardiánApp es una herramienta de apoyo comunitario y <strong>no reemplaza los canales oficiales de denuncia</strong>. Para emergencias o procesos judiciales, comuníquese con la Policía Nacional (123) o la Fiscalía.
                     </p>
                 </div>
             </div>
@@ -927,7 +934,13 @@
         let reportMarker = null;
 
         // Start fetching data immediately to parallelize with script parsing/map init
-        const dataPromise = fetch(`/api/geojson?_t=${Date.now()}`, { credentials: 'include', cache: 'no-store' }).then(r => r.json());
+        const urlParams = new URLSearchParams(window.location.search);
+        const incidentIdParam = urlParams.get('incident_id');
+        let geojsonUrl = `/api/geojson?_t=${Date.now()}`;
+        if (incidentIdParam) {
+            geojsonUrl += `&include_incident=${incidentIdParam}`;
+        }
+        const dataPromise = fetch(geojsonUrl, { credentials: 'include', cache: 'no-store' }).then(r => r.json());
 
         document.addEventListener('DOMContentLoaded', function () {
             map = L.map('map', {
@@ -951,26 +964,24 @@
 
             const tileOptions = {
                 subdomains: 'abcd',
-                attribution: 'CartoDB',
+                attribution: '&copy; OpenStreetMap contributors',
                 crossOrigin: true,
                 updateWhenIdle: false,
                 keepBuffer: 4
             };
 
             const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: 'OpenStreetMap',
+                attribution: '&copy; OpenStreetMap contributors',
                 crossOrigin: true
             });
 
-            const cartoLight = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', tileOptions);
+            // Reemplazado CartoDB por OpenStreetMap por ser gratis
+            const cartoLight = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', tileOptions);
+            const cartoDark = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', tileOptions);
 
-            const cartoDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', tileOptions);
-
-            cartoLight.addTo(map);
+            osm.addTo(map);
 
             const baseMaps = {
-                "Claro (CartoDB)": cartoLight,
-                "Oscuro (CartoDB)": cartoDark,
                 "OpenStreetMap": osm
             };
 
@@ -1004,6 +1015,19 @@
                         populateCategoryFilters(categories);
                     }
                     applyFilters();
+
+                    // Check URL for incident_id
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const incidentId = urlParams.get('incident_id');
+                    if (incidentId) {
+                        const incidentFeature = allIncidents.find(f => f.properties.id == incidentId);
+                        if (incidentFeature) {
+                            setTimeout(() => {
+                                const coords = incidentFeature.geometry.coordinates;
+                                focusIncidentOnMap(coords[1], coords[0], incidentFeature.properties);
+                            }, 500);
+                        }
+                    }
                     
                     // Sincronización ultra-robusta con Lighthouse usando Interacción del Usuario
                     const lcpLayer = document.getElementById('map-lcp-layer');
@@ -1303,7 +1327,7 @@
 
                                                                                                                                                                                                                                 <div style="margin-top: 8px; font-size: 10px; color: #9ca3af; display: flex; justify-content: space-between;">
                                                                                                                                                                                                                                     <span>${timeAgo}</span>
-                                                                                                                                                                                                                                    <span>${props.privacy_level === 'IDENTIFIED' ? '👤 Usuario' : '🔒 Anónimo'}</span>
+                                                                                                                                                                                                                                    <span>${props.privacy_level === 'IDENTIFIED' ? `👤 ${props.reporter_name || 'Usuario'}` : '🔒 Anónimo'}</span>
                                                                                                                                                                                                                                 </div>
                                                                                                                                                                                                                                 <button onclick="openIncidentDetails(${props.id})" 
                                                                                                                                                                                                                                     style="margin-top: 8px; width: 100%; background: var(--primary); color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 500;">
@@ -1740,7 +1764,12 @@
 
                 if (!found) {
                     // Create a temporary or permanent marker for this incident
-                    const category = incidentData.category ? incidentData.category.name : (incidentData.category_name || 'Otro');
+                    let category = 'Otro';
+                    if (incidentData.category) {
+                        category = typeof incidentData.category === 'string' ? incidentData.category : incidentData.category.name;
+                    } else if (incidentData.category_name) {
+                        category = incidentData.category_name;
+                    }
                     const config = categoryConfig[category] || categoryConfig['Otro'];
 
                     const marker = L.marker([lat, lng], {
@@ -1856,9 +1885,9 @@
             alertDiv.id = 'map-mode-alert';
             alertDiv.style.cssText = 'position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; padding: 0.75rem 1.5rem; border-radius: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2000; display: flex; align-items: center; gap: 0.5rem; animation: slideUp 0.3s ease-out;';
             alertDiv.innerHTML = `
-                                                                                                                                                                                                                <span>${text}</span>
-                                                                                                                                                                                                                <button onclick="window.location.reload()" style="background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">✕</button>
-                                                                                                                                                                                                            `;
+                                                                                                                                                                                <span>${text}</span>
+                                                                                                                                                                                <button onclick="const urlParams = new URLSearchParams(window.location.search); if(urlParams.has('incident_id')) { if(window.opener || window.history.length <= 2) { window.close(); } window.location.href = '/'; } else { window.location.reload(); }" style="background: rgba(255,255,255,0.2); border: none; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">✕</button>
+                                                                                                                                                                            `;
             document.body.appendChild(alertDiv);
         }
 
@@ -1923,7 +1952,15 @@
                                                                                                                                                                                             ${config.icon}
                                                                                                                                                                                         </div>
                                                                                                                                                                                         <div>
-                                                                                                                                                                                            <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0;">${category}</h2>
+                                                                                                                                                                                            <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                                                                                                                                                                                                ${category}
+                                                                                                                                                                                                ${incident.status === 'verified' 
+                                                                                                                                                                                                    ? '<span style="background: #10b981; color: white; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 1rem; vertical-align: middle;">✓ Verificado</span>' 
+                                                                                                                                                                                                    : (incident.status === 'rejected' 
+                                                                                                                                                                                                        ? '<span style="background: #ef4444; color: white; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 1rem; vertical-align: middle;">✗ Rechazado</span>' 
+                                                                                                                                                                                                        : '<span style="background: #f59e0b; color: white; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 1rem; vertical-align: middle;">⏱ Reportado</span>'
+                                                                                                                                                                                                    )}
+                                                                                                                                                                                            </h2>
                                                                                                                                                                                             <div style="font-size: 0.875rem; color: var(--text-secondary);">${timeAgo}</div>
                                                                                                                                                                                         </div>
                                                                                                                                                                                     </div>
@@ -2022,10 +2059,9 @@
             }
         }
 
-        const reactionIcons = { 'like': '👍', 'support': '❤️', 'angry': '😡', 'useful': '💡' };
-        const reactionLabels = { 'like': 'Me gusta', 'support': 'Me encanta', 'angry': 'Me enoja', 'useful': 'Útil' };
-        // Changed "like" color to dark/black as requested (no blue)
-        const reactionColors = { 'like': '#111827', 'support': '#ef4444', 'angry': '#eab308', 'useful': '#f97316' };
+        const reactionIcons = { 'support': '🤝', 'sad': '😢', 'angry': '😡', 'worried': '😟', 'useful': '💡' };
+        const reactionLabels = { 'support': 'Apoyo', 'sad': 'Tristeza', 'angry': 'Indignación', 'worried': 'Preocupación', 'useful': 'Útil' };
+        const reactionColors = { 'support': '#3b82f6', 'sad': '#64748b', 'angry': '#ef4444', 'worried': '#eab308', 'useful': '#10b981' };
 
         // Global functions for social stats
         function renderSocialStats(stats) {
@@ -2162,7 +2198,7 @@
             // User reaction state
             const myReaction = comment.user_reaction;
             const likeBtnColor = myReaction ? reactionColors[myReaction] : 'inherit';
-            const likeBtnText = myReaction ? reactionLabels[myReaction] : 'Me gusta';
+            const likeBtnText = myReaction ? reactionLabels[myReaction] : 'Reaccionar';
             const likeBtnWeight = myReaction ? '600' : '500';
 
             // Replies Toggle
@@ -2201,14 +2237,15 @@
                                                                                                                                                                                                     <span>${timeAgo}</span>
 
                                                                                                                                                                                                     <div class="reaction-picker-container">
-                                                                                                                                                                                                        <button class="comment-action-btn" style="color: ${likeBtnColor}; font-weight: ${likeBtnWeight}" onclick="toggleReaction(${comment.id}, '${myReaction ? myReaction : 'like'}')">
+                                                                                                                                                                                                        <button class="comment-action-btn" style="color: ${likeBtnColor}; font-weight: ${likeBtnWeight}" onclick="toggleReaction(${comment.id}, '${myReaction ? myReaction : 'support'}')">
                                                                                                                                                                                                             ${likeBtnText}
                                                                                                                                                                                                         </button>
                                                                                                                                                                                                         <div class="reaction-picker">
-                                                                                                                                                                                                            <div class="reaction-option" onclick="toggleReaction(${comment.id}, 'like')">👍</div>
-                                                                                                                                                                                                            <div class="reaction-option" onclick="toggleReaction(${comment.id}, 'support')">❤️</div>
-                                                                                                                                                                                                            <div class="reaction-option" onclick="toggleReaction(${comment.id}, 'useful')">💡</div>
-                                                                                                                                                                                                            <div class="reaction-option" onclick="toggleReaction(${comment.id}, 'angry')">😡</div>
+                                                                                                                                                                                                            <div class="reaction-option" onclick="toggleReaction(${comment.id}, 'support')" title="Apoyo">🤝</div>
+                                                                                                                                                                                                            <div class="reaction-option" onclick="toggleReaction(${comment.id}, 'sad')" title="Tristeza">😢</div>
+                                                                                                                                                                                                            <div class="reaction-option" onclick="toggleReaction(${comment.id}, 'angry')" title="Indignación">😡</div>
+                                                                                                                                                                                                            <div class="reaction-option" onclick="toggleReaction(${comment.id}, 'worried')" title="Preocupación">😟</div>
+                                                                                                                                                                                                            <div class="reaction-option" onclick="toggleReaction(${comment.id}, 'useful')" title="Útil">💡</div>
                                                                                                                                                                                                         </div>
                                                                                                                                                                                                     </div>
 
@@ -2339,9 +2376,9 @@
                     if (actionBtn) {
                         const myReaction = data.user_reaction;
                         actionBtn.style.color = myReaction ? reactionColors[myReaction] : 'inherit';
-                        actionBtn.innerText = myReaction ? reactionLabels[myReaction] : 'Me gusta';
+                        actionBtn.innerText = myReaction ? reactionLabels[myReaction] : 'Reaccionar';
                         actionBtn.style.fontWeight = myReaction ? '600' : '500';
-                        actionBtn.setAttribute('onclick', `toggleReaction(${commentId}, '${myReaction ? myReaction : 'like'}')`);
+                        actionBtn.setAttribute('onclick', `toggleReaction(${commentId}, '${myReaction ? myReaction : 'support'}')`);
                     }
 
                     refreshIncidentStats();

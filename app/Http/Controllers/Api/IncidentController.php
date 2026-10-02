@@ -51,6 +51,12 @@ class IncidentController extends Controller
     {
         $query = Incident::with(['category', 'user:id,name']);
 
+        // Obtener usuario autenticado usando el guard web
+        $user = auth('web')->user();
+        if (!$user || !in_array($user->role, ['admin', 'moderator'])) {
+            $query->where('status', '!=', 'rejected');
+        }
+
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
         }

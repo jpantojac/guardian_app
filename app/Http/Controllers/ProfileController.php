@@ -62,6 +62,43 @@ class ProfileController extends Controller
         return back()->with('success', 'Perfil actualizado correctamente.');
     }
 
+    /**
+     * Delete the user's account.
+     */
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'string'],
+        ]);
+
+        $user = auth()->user();
+
+        if (!Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'password' => 'La contraseña proporcionada es incorrecta.',
+            ]);
+        }
+
+        // Anonimizar incidentes antes de borrar para mantener estadísticas
+        $user->incidents()->update(['privacy_level' => 'ANONYMOUS']);
+
+        // Eliminar foto de perfil si existe
+        if ($user->profile_photo_path) {
+            Storage::delete($user->profile_photo_path);
+        }
+
+        // Cerrar sesión e invalidar antes de eliminar, para que el AuditLogObserver 
+        // no intente registrar la acción con el ID de un usuario que ya no existe.
+        auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Eliminar usuario. Gracias a nullOnDelete en DB, user_id se pondrá en nulo en reportes y comentarios.
+        $user->delete();
+
+        return redirect('/')->with('success', 'Tu cuenta ha sido eliminada exitosamente y tus datos anonimizados según la ley de Habeas Data.');
+    }
+
     public function incidents(Request $request)
     {
         $query = auth()->user()->incidents()->select('*', \Illuminate\Support\Facades\DB::raw('ST_Y(location) as latitude, ST_X(location) as longitude'))->with(['category', 'photos']);

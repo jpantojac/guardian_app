@@ -20,6 +20,8 @@ Route::post('/register', [AuthWebController::class, 'register']);
 
 // Protected routes
 Route::get('/api/incidents/{incident}', [\App\Http\Controllers\Api\IncidentController::class, 'show']);
+Route::get('/api/geojson', [\App\Http\Controllers\Api\GeoJSONController::class, 'index']);
+Route::get('/api/localidades-geojson', [\App\Http\Controllers\Api\GeoJSONController::class, 'localidades']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/report', [IncidentWebController::class, 'create'])->name('report.create');
@@ -29,6 +31,7 @@ Route::middleware('auth')->group(function () {
 
     // Profile routes
     Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [\App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/profile/incidents', [\App\Http\Controllers\ProfileController::class, 'incidents'])->name('profile.incidents');
     
     // Notifications
@@ -44,6 +47,9 @@ Route::middleware('auth')->group(function () {
 // Admin routes
 Route::middleware(['auth', 'role:admin,moderator'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    // Incidents Management
+    Route::get('/incidents', [\App\Http\Controllers\Admin\IncidentController::class, 'index'])->name('incidents.index');
+    Route::patch('/api/incidents/{incident}/status', [\App\Http\Controllers\Admin\IncidentController::class, 'updateStatus'])->name('incidents.update-status');
     
     // User Management (Admin only)
     Route::middleware('role:admin')->group(function () {

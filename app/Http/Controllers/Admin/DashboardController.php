@@ -24,7 +24,7 @@ class DashboardController extends Controller
             $selectedCategories = [$categoryId];
         }
 
-        $query = Incident::query();
+        $query = Incident::query()->where('status', '!=', 'rejected');
 
         if ($year) {
             $query->whereYear('incident_date', $year);

@@ -66,12 +66,14 @@ class DemoIncidentSeeder extends Seeder
                 $date = now()->subDays(rand(2, 365));
             }
 
+            $statuses = ['reported', 'reported', 'reported', 'verified', 'rejected'];
+
             $incident = Incident::create([
                 'user_id' => $users->random() ? $users->random()->id : 1, // fallback if empty
                 'category_id' => $category ? $category->id : 1, // fallback if empty
                 'description' => 'Reporte de prueba para demo (generado en las últimas 24h).',
                 'location' => DB::raw("ST_SetSRID(ST_MakePoint($lng, $lat), 4326)"),
-                'status' => 'reported',
+                'status' => $statuses[array_rand($statuses)],
                 'incident_date' => $date,
                 'created_at' => $date,
                 'updated_at' => $date,

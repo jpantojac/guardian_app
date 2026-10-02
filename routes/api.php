@@ -17,5 +17,3 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/incidents', [IncidentController::class, 'index']);
-Route::get('/geojson', [GeoJSONController::class, 'index']);
-Route::get('/localidades-geojson', [GeoJSONController::class, 'localidades']);

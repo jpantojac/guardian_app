@@ -64,6 +64,18 @@ class GeoJSONController extends Controller
 
         $query = Incident::query();
 
+        // Ocultar rechazados por defecto, a menos que un admin solicite ver uno específico
+        $includeIncident = $request->query('include_incident');
+        $user = auth('web')->user();
+
+        $query->where(function($q) use ($includeIncident, $user) {
+            $q->where('status', '!=', 'rejected');
+            
+            if ($includeIncident && $user && in_array($user->role, ['admin', 'moderator'])) {
+                $q->orWhere('id', $includeIncident);
+            }
+        });
+
         if ($request->has('days')) {
             $query->where('incident_date', '>=', now()->subDays($request->days));
         }

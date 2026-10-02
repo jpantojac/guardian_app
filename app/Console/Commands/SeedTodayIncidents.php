@@ -70,12 +70,14 @@ class SeedTodayIncidents extends Command
             // Incidentes creados orgánicamente dentro de las últimas 1 a 3 horas del día de hoy
             $date = now()->subMinutes(rand(0, 180)); 
 
+            $statuses = ['reported', 'reported', 'reported', 'verified', 'rejected'];
+
             $incident = Incident::create([
                 'user_id' => $users->random() ? $users->random()->id : 1, 
                 'category_id' => $category ? $category->id : 1, 
                 'description' => 'Reporte en vivo inyectado por consola durante la demo.',
                 'location' => DB::raw("ST_SetSRID(ST_MakePoint($lng, $lat), 4326)"),
-                'status' => 'reported',
+                'status' => $statuses[array_rand($statuses)],
                 'incident_date' => $date,
                 'created_at' => $date,
                 'updated_at' => $date,
@@ -83,6 +85,9 @@ class SeedTodayIncidents extends Command
 
             // Asignar geolocalización automatica con intersección espacial
             $incident->assignLocalidad();
+            
+            // Disparar las alertas para los usuarios que coincidan con los filtros
+            \App\Jobs\ProcessUserAlerts::dispatch($incident);
             
             $bar->advance();
         }

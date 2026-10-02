@@ -25,6 +25,7 @@ class IncidentFactory extends Factory
             'location'             => DB::raw("ST_SetSRID(ST_MakePoint($lng, $lat), 4326)"),
             'location_description' => $this->faker->address(),
             'localidad_id'         => null,
+            'incident_date'        => now(),
             'privacy_level'        => $this->faker->randomElement(['ANONYMOUS', 'IDENTIFIED']),
             'status'               => 'reported',
             'allow_comments'       => true,

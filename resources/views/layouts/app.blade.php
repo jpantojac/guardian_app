@@ -22,11 +22,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://unpkg.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://basemaps.cartocdn.com" crossorigin>
+    <link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://unpkg.com">
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="https://basemaps.cartocdn.com">
+    <link rel="dns-prefetch" href="https://tile.openstreetmap.org">
 
     <link rel="preload" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js" as="script" fetchpriority="high">
     
@@ -817,6 +817,25 @@
                                 onclick="closeProfileModal()" class="btn btn-secondary">Cancelar</button><button
                                 type="submit" class="btn btn-primary">Guardar Cambios</button></div>
                     </form>
+                    
+                    <!-- Delete Account Section -->
+                    <div style="border-top: 1px solid var(--danger, #dc2626); margin-top: 2rem; padding-top: 1.5rem;">
+                        <h3 style="color: var(--danger, #dc2626); font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">Zona de Peligro: Eliminar Cuenta</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 1rem;">
+                            Al eliminar tu cuenta, todos tus reportes se mantendrán de forma anónima para preservar las estadísticas de la ciudad. Esta acción es irreversible.
+                        </p>
+                        <form action="{{ route('profile.destroy') }}" method="POST" onsubmit="return confirm('¿Estás absolutamente seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.');">
+                            @csrf
+                            @method('DELETE')
+                            <div style="margin-bottom: 1rem;">
+                                <label for="delete_password" style="color: var(--danger, #dc2626);">Ingresa tu contraseña para confirmar:</label>
+                                <input type="password" id="delete_password" name="password" required placeholder="Tu contraseña actual" style="border-color: #fca5a5;">
+                            </div>
+                            <button type="submit" class="btn" style="background-color: var(--danger, #dc2626); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.25rem; font-weight: 600; cursor: pointer;">
+                                Eliminar Cuenta Permanentemente
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 <!-- Alerts Configuration Tab -->
                 <div id="profile-alerts" class="tab-content" style="display: none;">
