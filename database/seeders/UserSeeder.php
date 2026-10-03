@@ -12,8 +12,8 @@ class UserSeeder extends Seeder
     {
         User::create([
             'name' => 'Admin User',
-            'email' => 'admin@webgis.local',
-            'password' => 'SecurePass123!',
+            'email' => 'admin@guardianapp-project.org',
+            'password' => 'Password123!',
             'role' => 'admin',
             'is_active' => true,
             'consent_at' => now(),
@@ -21,8 +21,8 @@ class UserSeeder extends Seeder
 
         User::create([
             'name' => 'Moderator User',
-            'email' => 'moderator@webgis.local',
-            'password' => 'SecurePass123!',
+            'email' => 'moderator@guardianapp-project.org',
+            'password' => 'Password123!',
             'role' => 'moderator',
             'is_active' => true,
             'consent_at' => now(),
@@ -30,8 +30,8 @@ class UserSeeder extends Seeder
 
         User::create([
             'name' => 'Citizen User',
-            'email' => 'ciudadano@webgis.local',
-            'password' => 'SecurePass123!',
+            'email' => 'ciudadano@guardianapp-project.org',
+            'password' => 'Password123!',
             'role' => 'user',
             'is_active' => true,
             'consent_at' => now(),

@@ -160,9 +160,9 @@ El sistema se encuentra precargado con los siguientes actores:
 
 | Rol | Email | Contraseña |
 |-----|-------|------------|
-| **Admin** | admin@webgis.local | `SecurePass123!` |
-| **Moderador** | moderator@webgis.local | `SecurePass123!` |
-| **Ciudadano** | ciudadano@webgis.local | `SecurePass123!` |
+| **Admin** | admin@guardianapp-project.org | `Password123!` |
+| **Moderador** | moderator@guardianapp-project.org | `Password123!` |
+| **Ciudadano** | ciudadano@guardianapp-project.org | `Password123!` |
 
 ---
 
