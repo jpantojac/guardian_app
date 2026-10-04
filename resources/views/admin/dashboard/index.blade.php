@@ -490,11 +490,12 @@
                 L.geoJSON(data, {
                     style: function (feature) {
                         return {
-                            color: '#64748b',
-                            weight: 1.5,
-                            opacity: 0.6,
-                            fillOpacity: 0.05,
-                            dashArray: '4'
+                            color: '#1e3a8a', // Azul más oscuro y fuerte
+                            weight: 2.5, // Líneas más gruesas
+                            opacity: 0.9, // Menos transparencia en el borde
+                            fillColor: '#3b82f6', // Color de relleno
+                            fillOpacity: 0.15, // Menos transparencia en el relleno
+                            dashArray: '' // Línea sólida en lugar de punteada para mayor visibilidad
                         };
                     },
                     onEachFeature: function(feature, layer) {
@@ -502,8 +503,8 @@
                             layer.bindTooltip(feature.properties.nombre, {
                                 permanent: true, 
                                 direction: 'center', 
-                                className: 'bg-transparent border-0 shadow-none text-gray-500 font-semibold text-xs',
-                                opacity: 0.7
+                                className: 'bg-transparent border-0 shadow-none text-gray-800 font-bold text-sm',
+                                opacity: 0.9
                             });
                         }
                     }
